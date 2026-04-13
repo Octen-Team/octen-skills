@@ -1,7 +1,8 @@
 ---
-name: OctenSearch
+name: octen-web-search
 description: Real-time web search for AI agents powered by Octen. Fast, fresh, and relevant — search the web, filter by date, and get LLM-ready results in under 80ms. Ideal for research, news monitoring, and any task requiring up-to-date information.
 homepage: https://octen.ai
+keywords: [web search, search, octen, real-time search, web, news, research, LLM search, AI search]
 metadata: {"clawdbot":{"emoji":"🔍","requires":{"bins":["python3"],"env":["OCTEN_API_KEY"]},"primaryEnv":"OCTEN_API_KEY"}, "homepage" : "https://octen.ai", "support" : "support@octen.ai" }
 ---
 
