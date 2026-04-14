@@ -1,55 +1,183 @@
 ---
 name: octen-web-search
-description: Real-time web search for AI agents powered by Octen. Fast, fresh, and relevant — search the web, filter by date, and get LLM-ready results in under 80ms. Ideal for research, news monitoring, and any task requiring up-to-date information.
+description: USE FOR web search. Real-time web search for AI agents powered by Octen. Fast, fresh, and relevant — returns ranked results with highlights, full content, domain filtering, and time filtering. Average response under 80ms with minute-level index freshness.
 homepage: https://octen.ai
 keywords: [web search, search, octen, real-time search, web, news, research, LLM search, AI search]
-metadata: {"clawdbot":{"emoji":"🔍","requires":{"bins":["python3"],"env":["OCTEN_API_KEY"]},"primaryEnv":"OCTEN_API_KEY"}, "homepage" : "https://octen.ai", "support" : "support@octen.ai" }
+metadata: {"clawdbot":{"emoji":"🔍","requires":{"bins":["curl"],"env":["OCTEN_API_KEY"]},"primaryEnv":"OCTEN_API_KEY"}, "homepage": "https://octen.ai", "support": "support@octen.ai"}
 ---
 
-# Octen Search - Real-time Web Search for AI Agents
+# Octen Web Search
 
-Octen Search gives your OpenClaw agent the ability to **search the web in real time**. 
-Powered by [Octen](https://octen.ai), a search infrastructure purpose-built for AI agents and LLMs.
+> **Requires API Key**: Get one at https://octen.ai
+>
+> Set it: `export OCTEN_API_KEY=your-api-key`
 
-## What This Skill Does
+## Quick Start (cURL)
 
-- 🔍 **Web search**: Search the live web and get structured, LLM-ready results
-- ⚡ **Fast**: Average response time under 80ms
-- 🕐 **Fresh**: Minute-level index freshness — always up-to-date
-- 📅 **Time filtering**: Filter results by publish date (start/end time)
-- 🤖 **LLM-native**: Results formatted and ranked specifically for AI consumption
-
-## Usage
-
+### Basic Search
 ```bash
-# Basic web search
-python3 {baseDir}/scripts/search.py "your search query"
-
-# Control number of results (1-20, default: 5)
-python3 {baseDir}/scripts/search.py "your query" -n 10
-
-# Filter by start date
-python3 {baseDir}/scripts/search.py "your query" --start_time "2026-01-01T00:00:00Z"
-
-# Filter by date range
-python3 {baseDir}/scripts/search.py "your query" --start_time "2026-01-01T00:00:00Z" --end_time "2026-01-31T23:59:59Z"
+curl -s -X POST "https://api.octen.ai/search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{"query": "latest AI research 2026", "count": 5}'
 ```
 
-## Options
+### With Highlight and Time Filtering
+```bash
+curl -s -X POST "https://api.octen.ai/search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{
+    "query": "summary judgment",
+    "count": 10,
+    "time_basis": "published",
+    "start_time": "2025-01-01T00:00:00Z",
+    "end_time": "2026-01-01T00:00:00Z",
+    "highlight": {"enable": true, "max_tokens": 300}
+  }'
+```
 
-- `-n, --count <count>`: Optional. Number of results (min: 1, max: 20, if not provided, default to 5)
-- `--start_time <time>`: Optional. Start time for filtering results (ISO 8601 format, e.g., "2026-01-01T00:00:00Z")
-- `--end_time <time>`: Optional. End time for filtering results (ISO 8601 format, e.g., "2026-01-31T23:59:59Z"). If start_time and end_time are both provided, end_time must be greater than start_time
+### With Domain Filtering
+```bash
+curl -s -X POST "https://api.octen.ai/search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{
+    "query": "climate change policy",
+    "count": 5,
+    "include_domains": ["nature.com", "science.org"],
+    "exclude_domains": ["spam.com"]
+  }'
+```
 
+### With Full Content
+```bash
+curl -s -X POST "https://api.octen.ai/search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{
+    "query": "latest WHO guidance on influenza vaccination",
+    "count": 5,
+    "full_content": {"enable": true, "max_tokens": 1000}
+  }'
+```
 
-## Notes
-- Needs `OCTEN_API_KEY` in the environment variables, get it from https://octen.ai, then set it like this: `export OCTEN_API_KEY=your-api-key`
-- Use `--start_time` and `--end_time` if you want to filter results by time published. For example, to search for news published in January 2026, you can use `--start_time "2026-01-01T00:00:00Z" --end_time "2026-01-31T23:59:59Z"`.
+## Endpoint
+
+```http
+POST https://api.octen.ai/search
+```
+
+**Authentication**: `X-Api-Key: <API_KEY>` header
+
+**Content-Type**: `application/json`
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|--|--|--|--|--|
+| `query` | string | **Yes** | - | Search query (max 500 chars) |
+| `count` | integer | No | `5` | Number of results (1–100) |
+| `include_domains` | string[] | No | - | Only include results from these domains (max 1000 domains, each max 30 chars) |
+| `exclude_domains` | string[] | No | - | Exclude results from these domains (max 150 domains, each max 30 chars) |
+| `include_text` | string[] | No | - | Strings that must appear in result page text (max 5 items, each max 30 chars) |
+| `exclude_text` | string[] | No | - | Strings that must not appear in result page text (max 5 items, each max 30 chars) |
+| `time_basis` | string | No | `auto` | Time field used for filtering: `auto`, `published`, `crawled` |
+| `start_time` | string | No | - | Start time filter, ISO 8601 (e.g. `2025-01-01T00:00:00Z`) |
+| `end_time` | string | No | - | End time filter, ISO 8601 (must be after `start_time`) |
+| `highlight` | object | No | `{"enable": true}` | Highlight options (see below) |
+| `format` | string | No | `text` | Output format for highlights: `text` or `markdown` |
+| `safesearch` | string | No | `strict` | Adult content filter: `off` or `strict` |
+| `full_content` | object | No | `{"enable": false}` | Full content options (see below) |
+
+### Highlight Options
+
+| Field | Type | Default | Description |
+|--|--|--|--|
+| `enable` | boolean | `true` | Return query-relevant highlights in each result |
+| `max_tokens` | integer | `512` | Max tokens per highlight (100–20000) |
+
+### Full Content Options
+
+| Field | Type | Default | Description |
+|--|--|--|--|
+| `enable` | boolean | `false` | Return full raw page content for each result |
+| `max_tokens` | integer | `2048` | Max tokens per result (100–100000) |
+
+## Response Format
+
+### Response Fields
+
+| Field | Type | Description |
+|--|--|--|
+| `code` | integer | Status code. `0` = success |
+| `msg` | string | Human-readable status message |
+| `request_id` | string | Unique request identifier |
+| `data.query` | string | The original query |
+| `data.results[]` | array | List of search results |
+| `data.results[].title` | string | Page title |
+| `data.results[].url` | string | Page URL |
+| `data.results[].highlight` | string? | Query-relevant snippets (when `highlight.enable` is true) |
+| `data.results[].full_content` | string? | Full page content (when `full_content.enable` is true) |
+| `data.results[].authors` | string? | Website name or author |
+| `data.results[].time_published` | string? | Publish time, ISO 8601 |
+| `data.results[].time_last_crawled` | string? | Last crawl time, ISO 8601 |
+| `meta.usage.num_search_queries` | integer | Number of search queries executed |
+| `meta.usage.full_content_tokens` | integer | Total tokens returned in full_content |
+| `meta.latency` | number | Response time in milliseconds |
+| `meta.warning` | string? | Warning message, if any |
+
+### JSON Example
+
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "request_id": "req_abc123def456",
+  "data": {
+    "query": "latest WHO guidance on influenza vaccination",
+    "results": [
+      {
+        "title": "Influenza (Seasonal) - World Health Organization (WHO)",
+        "url": "https://www.who.int/news-room/fact-sheets/detail/influenza-(seasonal)",
+        "highlight": "WHO recommends annual vaccination for high-risk groups\n\n...\n\nSeasonal influenza vaccination policies vary by region...",
+        "authors": "World Health Organization",
+        "time_published": "2024-10-15T00:00:00Z",
+        "time_last_crawled": "2026-01-20T02:12:34Z"
+      }
+    ]
+  },
+  "meta": {
+    "usage": {
+      "num_search_queries": 1,
+      "full_content_tokens": 0
+    },
+    "latency": 237,
+    "warning": null
+  }
+}
+```
+
+## Error Codes
+
+| HTTP Status | Description |
+|--|--|
+| `400` | Missing or invalid parameter |
+| `401` | Invalid or missing API key |
+| `403` | Insufficient balance |
+| `429` | Rate limited |
+| `500` | Internal server error |
 
 ## Security
-- The `OCTEN_API_KEY` environment variable is **only sent to the official Octen API endpoint**: `https://api.octen.ai/search`
-- No environment variables are sent to any other endpoints or external services
-- The API endpoint is **hardcoded and whitelisted** in the code and cannot be modified at runtime
-- The skill uses standard HTTP header authentication (`X-Api-Key`) which is the recommended practice for API authentication
-- All network requests are made over HTTPS to ensure encrypted transmission of the API key
 
+- API key is sent **only** to the hardcoded endpoint `https://api.octen.ai/search` via HTTPS
+- Authentication uses the standard `X-Api-Key` header
+- No environment variables are sent to any other endpoints or external services
+
+## Notes
+
+- **Highlight** is enabled by default — set `"highlight": {"enable": false}` to disable
+- **Full content** is disabled by default — enable it to get raw page text for RAG/grounding
+- Use `include_domains` / `exclude_domains` to scope results to trusted sources
+- Use `start_time` / `end_time` with `time_basis` to filter by publish or crawl time
+- `format: "markdown"` returns highlights in markdown; `format: "text"` returns plain text
