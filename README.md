@@ -102,8 +102,8 @@ mkdir -p .claude/skills && curl -sL https://github.com/Octen-Team/web-search-ski
 
 ```bash
 git clone https://github.com/Octen-Team/web-search-skills.git
-cp -r web-search-skills/skills/octen-web-search ~/.claude/skills/   # user-level
-cp -r web-search-skills/skills/octen-web-search .claude/skills/      # project-level
+mkdir -p ~/.claude/skills && cp -r web-search-skills/skills/octen-web-search ~/.claude/skills/   # user-level
+mkdir -p .claude/skills && cp -r web-search-skills/skills/octen-web-search .claude/skills/        # project-level
 ```
 
 ### OpenClaw
@@ -124,6 +124,7 @@ mkdir -p ~/.openclaw/skills && curl -sL https://github.com/Octen-Team/web-search
 
 ```bash
 git clone https://github.com/Octen-Team/web-search-skills.git
+mkdir -p ~/.openclaw/skills
 cp -r web-search-skills/skills/octen-web-search ~/.openclaw/skills/
 ```
 
@@ -143,8 +144,8 @@ mkdir -p ~/.cursor/skills && curl -sL https://github.com/Octen-Team/web-search-s
 
 ```bash
 git clone https://github.com/Octen-Team/web-search-skills.git
-cp -r web-search-skills/skills/octen-web-search .cursor/skills/      # project-level
-cp -r web-search-skills/skills/octen-web-search ~/.cursor/skills/     # user-level
+mkdir -p .cursor/skills && cp -r web-search-skills/skills/octen-web-search .cursor/skills/      # project-level
+mkdir -p ~/.cursor/skills && cp -r web-search-skills/skills/octen-web-search ~/.cursor/skills/   # user-level
 ```
 
 ### Codex
@@ -152,19 +153,15 @@ cp -r web-search-skills/skills/octen-web-search ~/.cursor/skills/     # user-lev
 **curl:**
 
 ```bash
-# User-level
-mkdir -p ~/.agents/skills && curl -sL https://github.com/Octen-Team/web-search-skills/archive/main.tar.gz | tar xz -C ~/.agents/skills --strip-components=2 web-search-skills-main/skills
-
-# Project-level
-mkdir -p .agents/skills && curl -sL https://github.com/Octen-Team/web-search-skills/archive/main.tar.gz | tar xz -C .agents/skills --strip-components=2 web-search-skills-main/skills
+mkdir -p ~/.codex/skills && curl -sL https://github.com/Octen-Team/web-search-skills/archive/main.tar.gz | tar xz -C ~/.codex/skills --strip-components=2 web-search-skills-main/skills
 ```
 
 **Manual** (git clone + cp):
 
 ```bash
 git clone https://github.com/Octen-Team/web-search-skills.git
-cp -r web-search-skills/skills/octen-web-search ~/.agents/skills/    # user-level
-cp -r web-search-skills/skills/octen-web-search .agents/skills/       # project-level
+mkdir -p ~/.codex/skills
+cp -r web-search-skills/skills/octen-web-search ~/.codex/skills/
 ```
 
 ### Hermes Agent
@@ -179,6 +176,7 @@ mkdir -p ~/.hermes/skills && curl -sL https://github.com/Octen-Team/web-search-s
 
 ```bash
 git clone https://github.com/Octen-Team/web-search-skills.git
+mkdir -p ~/.hermes/skills
 cp -r web-search-skills/skills/octen-web-search ~/.hermes/skills/
 ```
 
@@ -201,8 +199,9 @@ Or copy from a git clone to the agent's skills directory. All agents following t
 ```bash
 cd web-search-skills && git pull
 cp -r skills/octen-web-search ~/.claude/skills/      # Claude Code
-cp -r skills/octen-web-search .cursor/skills/         # Cursor
-cp -r skills/octen-web-search ~/.agents/skills/       # Codex
+cp -r skills/octen-web-search .cursor/skills/         # Cursor (project-level)
+cp -r skills/octen-web-search ~/.cursor/skills/       # Cursor (user-level)
+cp -r skills/octen-web-search ~/.codex/skills/        # Codex
 cp -r skills/octen-web-search ~/.openclaw/skills/     # OpenClaw
 cp -r skills/octen-web-search ~/.hermes/skills/       # Hermes Agent
 ```
