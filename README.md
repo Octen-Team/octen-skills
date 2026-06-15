@@ -12,7 +12,7 @@ Works with **Claude Code**, **OpenClaw**, **Cursor**, **Codex**, **Hermes Agent*
 
 ## Skills
 
-This repo ships two skills. The `curl`, `npx`, and `clawhub` installers below copy the whole `skills/` directory, so you get both.
+This repo ships two skills. The `curl` and `git clone` install methods below copy the whole `skills/` directory, so you get both.
 
 | Skill | Endpoint | Use it for |
 |--|--|--|

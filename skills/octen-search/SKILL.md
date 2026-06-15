@@ -103,7 +103,7 @@ POST https://api.octen.ai/broad-search
 | `messages` | object[] | **Yes** | - | The conversation so far. Each item is `{"role": "user"\|"assistant"\|"system", "content": "..."}`. The latest user turn is decomposed into sub-queries. |
 | `mode` | string | **Fixed** | `queries_and_search` | Always sent as `queries_and_search` for this skill — returns sub-queries and their search results, no LLM synthesis. |
 | `model` | string | No | `anthropic/claude-sonnet-4.6` | Model used for query decomposition (see [Models](#models)) |
-| `max_queries` | integer | No | `30` | Max number of sub-queries to generate (1–30) |
+| `max_queries` | integer | No | `30` | Target number of sub-queries to generate (recommended 1–30; not strictly enforced server-side) |
 | `web_search_options` | object | No | - | Per-search filters applied to every sub-query (see below) |
 | `stream` | boolean | No | `false` | Stream incremental chunks instead of one JSON response |
 
@@ -111,11 +111,11 @@ POST https://api.octen.ai/broad-search
 
 | Field | Type | Default | Description |
 |--|--|--|--|
-| `count` | integer | - | Results per sub-query (1–100) |
-| `include_domains` | string[] | - | Only include results from these domains |
-| `exclude_domains` | string[] | - | Exclude results from these domains |
-| `include_text` | string[] | - | Strings that must appear in result page text (max 5 items) |
-| `exclude_text` | string[] | - | Strings that must not appear in result page text (max 5 items) |
+| `count` | integer | `10` | Results per sub-query (1–100) |
+| `include_domains` | string[] | - | Only include results from these domains (max 1000, each ≤30 chars) |
+| `exclude_domains` | string[] | - | Exclude results from these domains (max 150, each ≤30 chars) |
+| `include_text` | string[] | - | Strings that must appear in result page text (max 5 items, each ≤30 chars) |
+| `exclude_text` | string[] | - | Strings that must not appear in result page text (max 5 items, each ≤30 chars) |
 | `time_basis` | string | `auto` | Time field used for filtering: `auto`, `published`, `crawled` |
 | `start_time` | string | - | Start time filter, ISO 8601 (e.g. `2025-01-01T00:00:00Z`) |
 | `end_time` | string | - | End time filter, ISO 8601 (must be after `start_time`) |
@@ -140,7 +140,7 @@ POST https://api.octen.ai/broad-search
 
 ### Models
 
-`model` controls query decomposition. Accepted identifiers:
+`model` controls query decomposition. Known identifiers below — the server is lenient (an unrecognized value falls back to the default rather than erroring), and this list changes over time, so treat the [API reference](https://docs.octen.ai/api-reference/broad-search) as canonical:
 
 `anthropic/claude-opus-4.8` · `anthropic/claude-opus-4.6` · `anthropic/claude-sonnet-4.6` *(default)* · `anthropic/claude-haiku-4.5` · `google/gemini-3.5-flash` · `google/gemini-3.1-pro-preview` · `google/gemini-3.1-flash-lite` · `google/gemini-3-flash-preview` · `openai/gpt-5.5-pro` · `openai/gpt-5.5` · `openai/gpt-5.4` · `moonshotai/kimi-k2.6` · `moonshotai/kimi-k2.5` · `minimax/minimax-m2.5` · `qwen/qwen3.6-plus`
 
@@ -171,10 +171,10 @@ A JSON object with the decomposed sub-queries and their grouped search results. 
 | `authors` | string | Website name or author |
 | `time_published` | string | Publish time, ISO 8601 |
 | `time_last_crawled` | string | Last crawl time, ISO 8601 |
-| `favicon` | string | Favicon URL (may be empty) |
-| `cover_image` | string | Cover image URL (may be empty) |
-| `images` | array | Inline images found on the page (may be empty) |
-| `videos` | array | Inline videos found on the page (may be empty) |
+| `favicon` | string | Favicon URL (empty string when absent) |
+| `cover_image` | string \| null | Cover image URL (`null` when absent) |
+| `images` | array \| null | Inline images found on the page (`null` when absent) |
+| `videos` | array \| null | Inline videos found on the page (`null` when absent) |
 
 ### JSON Example
 
@@ -199,9 +199,9 @@ A JSON object with the decomposed sub-queries and their grouped search results. 
           "time_published": "2026-02-26T00:00:00Z",
           "time_last_crawled": "2026-04-16T18:52:18Z",
           "favicon": "",
-          "cover_image": "",
-          "images": [],
-          "videos": []
+          "cover_image": null,
+          "images": null,
+          "videos": null
         }
       ],
       "latency": 612
@@ -221,12 +221,13 @@ Set `"stream": true` to receive incremental chunks. Each chunk carries a `type`:
 |--|--|
 | `queries` | The auto-generated sub-queries array (emitted once decomposition finishes) |
 | `search_done` | Search results grouped by sub-query (emitted once searches complete) |
-| `finish` | Completion signal with `finish_reason` |
-| `usage` | Token and latency metadata |
+| `finish` | Completion signal; `finish_reason` is nested at `choices[0].finish_reason` |
+
+> In `queries_and_search` mode only `queries`, `search_done`, and `finish` are emitted, in that order. The `content` and `usage` chunk types appear only when the model synthesizes (i.e. `full` mode, which this skill does not use).
 
 ## Error Codes
 
-All errors return `{ "code": <int>, "msg": "<description>" }`.
+All errors return `{ "code": <int>, "msg": "<description>" }` (the body may also include `request_id`).
 
 | HTTP Status | Description |
 |--|--|
