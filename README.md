@@ -1,6 +1,6 @@
-# Octen Web Search Skill
+# Octen Web Search Skills
 
-Real-time web search skill for AI coding agents, powered by [Octen](https://octen.ai).
+Real-time web search skills for AI coding agents, powered by [Octen](https://octen.ai).
 
 Works with **Claude Code**, **OpenClaw**, **Cursor**, **Codex**, **Hermes Agent**, and other agents that support the [Agent Skills](https://agentskills.io) standard.
 
@@ -9,6 +9,15 @@ Works with **Claude Code**, **OpenClaw**, **Cursor**, **Codex**, **Hermes Agent*
 [Prerequisites](#prerequisites) &nbsp;&middot;&nbsp; [Installation](#installation) &nbsp;&middot;&nbsp; [Quick Start](#quick-start) &nbsp;&middot;&nbsp; [Documentation](#documentation)
 
 </div>
+
+## Skills
+
+This repo ships two skills. The `curl` and `git clone` install methods below copy the whole `skills/` directory, so you get both.
+
+| Skill | Endpoint | Use it for |
+|--|--|--|
+| **octen-web-search** | `POST /search` | A single, direct query — fast ranked results. |
+| **octen-search** | `POST /broad-search` | Broad, multi-angle research — decomposes your question into several sub-queries and returns results grouped per sub-query (no LLM summary). |
 
 ## Prerequisites
 
@@ -102,8 +111,8 @@ mkdir -p .claude/skills && curl -sL https://github.com/Octen-Team/web-search-ski
 
 ```bash
 git clone https://github.com/Octen-Team/web-search-skills.git
-mkdir -p ~/.claude/skills && cp -r web-search-skills/skills/octen-web-search ~/.claude/skills/   # user-level
-mkdir -p .claude/skills && cp -r web-search-skills/skills/octen-web-search .claude/skills/        # project-level
+mkdir -p ~/.claude/skills && cp -r web-search-skills/skills/* ~/.claude/skills/   # user-level (both skills)
+mkdir -p .claude/skills && cp -r web-search-skills/skills/* .claude/skills/        # project-level (both skills)
 ```
 
 ### OpenClaw
@@ -125,7 +134,7 @@ mkdir -p ~/.openclaw/skills && curl -sL https://github.com/Octen-Team/web-search
 ```bash
 git clone https://github.com/Octen-Team/web-search-skills.git
 mkdir -p ~/.openclaw/skills
-cp -r web-search-skills/skills/octen-web-search ~/.openclaw/skills/
+cp -r web-search-skills/skills/* ~/.openclaw/skills/
 ```
 
 ### Cursor
@@ -144,8 +153,8 @@ mkdir -p ~/.cursor/skills && curl -sL https://github.com/Octen-Team/web-search-s
 
 ```bash
 git clone https://github.com/Octen-Team/web-search-skills.git
-mkdir -p .cursor/skills && cp -r web-search-skills/skills/octen-web-search .cursor/skills/      # project-level
-mkdir -p ~/.cursor/skills && cp -r web-search-skills/skills/octen-web-search ~/.cursor/skills/   # user-level
+mkdir -p .cursor/skills && cp -r web-search-skills/skills/* .cursor/skills/      # project-level (both skills)
+mkdir -p ~/.cursor/skills && cp -r web-search-skills/skills/* ~/.cursor/skills/   # user-level (both skills)
 ```
 
 ### Codex
@@ -161,7 +170,7 @@ mkdir -p ~/.codex/skills && curl -sL https://github.com/Octen-Team/web-search-sk
 ```bash
 git clone https://github.com/Octen-Team/web-search-skills.git
 mkdir -p ~/.codex/skills
-cp -r web-search-skills/skills/octen-web-search ~/.codex/skills/
+cp -r web-search-skills/skills/* ~/.codex/skills/
 ```
 
 ### Hermes Agent
@@ -177,7 +186,7 @@ mkdir -p ~/.hermes/skills && curl -sL https://github.com/Octen-Team/web-search-s
 ```bash
 git clone https://github.com/Octen-Team/web-search-skills.git
 mkdir -p ~/.hermes/skills
-cp -r web-search-skills/skills/octen-web-search ~/.hermes/skills/
+cp -r web-search-skills/skills/* ~/.hermes/skills/
 ```
 
 ### Other Agents
@@ -198,17 +207,17 @@ Or copy from a git clone to the agent's skills directory. All agents following t
 
 ```bash
 cd web-search-skills && git pull
-cp -r skills/octen-web-search ~/.claude/skills/      # Claude Code
-cp -r skills/octen-web-search .cursor/skills/         # Cursor (project-level)
-cp -r skills/octen-web-search ~/.cursor/skills/       # Cursor (user-level)
-cp -r skills/octen-web-search ~/.codex/skills/        # Codex
-cp -r skills/octen-web-search ~/.openclaw/skills/     # OpenClaw
-cp -r skills/octen-web-search ~/.hermes/skills/       # Hermes Agent
+cp -r skills/* ~/.claude/skills/      # Claude Code
+cp -r skills/* .cursor/skills/         # Cursor (project-level)
+cp -r skills/* ~/.cursor/skills/       # Cursor (user-level)
+cp -r skills/* ~/.codex/skills/        # Codex
+cp -r skills/* ~/.openclaw/skills/     # OpenClaw
+cp -r skills/* ~/.hermes/skills/       # Hermes Agent
 ```
 
 ## Quick Start
 
-### Basic Search
+### Basic Search (`octen-web-search`)
 
 ```bash
 curl -s -X POST "https://api.octen.ai/search" \
@@ -242,6 +251,21 @@ curl -s -X POST "https://api.octen.ai/search" \
     "query": "machine learning",
     "count": 5,
     "include_domains": ["nature.com", "science.org"]
+  }'
+```
+
+### Broad Search (`octen-search`)
+
+Decompose a question into multiple sub-queries and get results grouped per sub-query (no LLM summary):
+
+```bash
+curl -s -X POST "https://api.octen.ai/broad-search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{
+    "messages": [{"role": "user", "content": "latest AI chip market trends 2026"}],
+    "mode": "queries_and_search",
+    "max_queries": 5
   }'
 ```
 

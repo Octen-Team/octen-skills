@@ -12,6 +12,19 @@ metadata: {"clawdbot":{"emoji":"🔍","requires":{"bins":["curl"],"env":["OCTEN_
 >
 > Set it: `export OCTEN_API_KEY=your-api-key`
 
+## API Key Setup
+
+**Before searching, ensure `OCTEN_API_KEY` is set. If it is missing — or any call returns `401` — stop and do not retry blindly: tell the user a key is required, point them to https://octen.ai to get one, help them configure it for their agent (below), then continue once it's set.**
+
+Configure the key for the relevant agent/runtime:
+
+- **Claude Code** — add `{ "env": { "OCTEN_API_KEY": "your-key" } }` to `~/.claude/settings.json` (a transient shell `export` will not persist)
+- **Cursor / Hermes / generic shell** — `export OCTEN_API_KEY="your-key"` in `~/.zshrc` or `~/.bashrc`
+- **Codex** — `~/.codex/config.toml` → `[shell_environment_policy]`, `set = { OCTEN_API_KEY = "your-key" }`
+- **OpenClaw** — add `OCTEN_API_KEY=your-key` to `~/.openclaw/.env`
+
+See the [README](https://github.com/Octen-Team/web-search-skills#prerequisites) for full per-agent instructions.
+
 ## Quick Start (cURL)
 
 ### Basic Search
