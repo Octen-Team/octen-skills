@@ -21,6 +21,18 @@ Broad Search is **agentic multi-query search**: it takes a conversation, decompo
 - **Use `octen-search` (this skill, `/broad-search`)** for questions that benefit from multiple angles: "compare X and Y", "what's the latest on Z", literature/market scans, anything where one search query isn't enough — and you want the underlying sources, not a pre-written summary.
 - **Use `octen-web-search` (`/search`)** for a single, direct lookup where you already know the exact query and just want ranked results.
 
+## Sizing the Search
+
+**Set `max_queries` and `count` on every call, scaled to how broad the question is — do not fall back to the API defaults (30 sub-queries × 10 results ≈ 300 pages, slow and token-heavy).** Judge the breadth of the user's question and pick a tier:
+
+| Question breadth | Example | `max_queries` | `count` |
+|--|--|--|--|
+| **Narrow** — one fact/entity, single angle | "current CEO of Acme", "when did X ship" | 2–3 | 3 |
+| **Moderate** — a comparison or "latest on X" | "Postgres vs MySQL for OLTP", "latest on the EU AI Act" | 4–6 | 5 |
+| **Broad** — research, survey, many facets | "state of fusion-energy startups", "what's new in AI chips 2026" | 8–12 | 8–10 |
+
+When unsure, use `max_queries: 5` and `count: 5`. Hard caps: `max_queries` ≤ 30, `count` ≤ 100.
+
 ## Quick Start (cURL)
 
 ### Basic Broad Search (sub-queries + results)
@@ -33,7 +45,8 @@ curl -s -X POST "https://api.octen.ai/broad-search" \
       {"role": "user", "content": "Latest trends in the AI chip market in 2026"}
     ],
     "mode": "queries_and_search",
-    "max_queries": 5
+    "max_queries": 5,
+    "web_search_options": {"count": 5}
   }'
 ```
 
@@ -80,7 +93,8 @@ curl -s -X POST "https://api.octen.ai/broad-search" \
     "model": "anthropic/claude-opus-4.8",
     "messages": [{"role": "user", "content": "the state of fusion energy startups"}],
     "mode": "queries_and_search",
-    "max_queries": 10
+    "max_queries": 10,
+    "web_search_options": {"count": 8}
   }'
 ```
 
@@ -246,7 +260,7 @@ All errors return `{ "code": <int>, "msg": "<description>" }` (the body may also
 ## Notes
 
 - **This skill returns sources, not a summary.** `mode` is fixed to `queries_and_search`; read `search_results` directly and write your own answer from them.
-- **`max_queries` trades depth for cost/latency.** More sub-queries = broader coverage but more search calls and tokens. Start around 5–10.
+- **Always set `max_queries` and `count`, scaled to the question** — see [Sizing the Search](#sizing-the-search). They trade depth for cost/latency, and the API defaults (30 × 10) are wasteful, so don't rely on them.
 - **`web_search_options` applies to every sub-query** — use `include_domains` / `time_basis` + `start_time`/`end_time` to keep all branches scoped to trusted, recent sources.
 - **Highlight** is enabled by default; **full content** is off by default — enable `full_content` to pull raw page text for grounding/RAG.
 - `messages` accepts multi-turn context, so you can follow up within the same conversation to refine the search.
