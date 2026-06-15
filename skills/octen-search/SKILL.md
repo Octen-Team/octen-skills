@@ -44,7 +44,7 @@ See the [README](https://github.com/Octen-Team/web-search-skills#prerequisites) 
 | **Moderate** — a comparison or "latest on X" | "Postgres vs MySQL for OLTP", "latest on the EU AI Act" | 4–6 | 5 |
 | **Broad** — research, survey, many facets | "state of fusion-energy startups", "what's new in AI chips 2026" | 8–12 | 8–10 |
 
-When unsure, use `max_queries: 5` and `count: 5`. Hard caps: `max_queries` ≤ 30, `count` ≤ 100.
+When unsure, use `max_queries: 5` and `count: 5`. Stay within `max_queries` ≤ 30 (the API default ceiling — higher values aren't reliably honored) and `count` ≤ 100 (the enforced max).
 
 ## Quick Start (cURL)
 
