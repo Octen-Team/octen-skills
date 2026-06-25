@@ -12,12 +12,11 @@ Works with **Claude Code**, **OpenClaw**, **Cursor**, **Codex**, **Hermes Agent*
 
 ## Skills
 
-This repo ships two skills. The `curl` and `git clone` install methods below copy the whole `skills/` directory, so you get both.
+This repo ships Octen skills for AI coding agents. The `curl` and `git clone` install methods below copy the whole `skills/` directory, so you get all of them.
 
 | Skill | Endpoint | Use it for |
 |--|--|--|
 | **octen-web-search** | `POST /search` | A single, direct query — fast ranked results. |
-| **octen-search** | `POST /broad-search` | Broad, multi-angle research — decomposes your question into several sub-queries and returns results grouped per sub-query (no LLM summary). |
 
 ## Prerequisites
 
@@ -251,21 +250,6 @@ curl -s -X POST "https://api.octen.ai/search" \
     "query": "machine learning",
     "count": 5,
     "include_domains": ["nature.com", "science.org"]
-  }'
-```
-
-### Broad Search (`octen-search`)
-
-Decompose a question into multiple sub-queries and get results grouped per sub-query (no LLM summary):
-
-```bash
-curl -s -X POST "https://api.octen.ai/broad-search" \
-  -H "Content-Type: application/json" \
-  -H "X-Api-Key: ${OCTEN_API_KEY}" \
-  -d '{
-    "messages": [{"role": "user", "content": "latest AI chip market trends 2026"}],
-    "mode": "queries_and_search",
-    "max_queries": 5
   }'
 ```
 
