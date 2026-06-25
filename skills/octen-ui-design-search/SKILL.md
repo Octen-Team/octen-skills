@@ -75,10 +75,7 @@ Follow these steps for any UI build/restyle task.
    brand exactly as it appears in the index (its title / name); do **not** glue on
    "style" or similar ("Octen style"), because the index stores the bare brand title,
    so the plain name matches best. Same brand token, same front position, on every
-   query. (The cleaner long-term approach is the `--include-domains` filter, but it is
-   **currently not effective due to an API bug** — see step 2 — so the brand must ride
-   in the query text for now.) Drop the brand only when there is no reference brand in
-   the request at all.
+   query. Drop the brand only when there is no reference brand in the request at all.
 
    **Multiple reference brands → one query per brand, never fused into one.** When the
    request names several brands to compare, analyze, or blend ("Vercel, Linear and
@@ -118,7 +115,7 @@ Follow these steps for any UI build/restyle task.
      design system (color, type, spacing). Confirm from the image that you actually
      got a full page, not a section crop. **(b) Then sections:** run one query per
      section (hero, logo cloud, features, pricing, footer, CTA) for implementation
-     detail, looping steps 3–6 for each.
+     detail, looping steps 2–5 for each.
 
    Decide the shared modifiers **once** — the brand token (kept at the front) and a
    single product descriptor (e.g. "web search product") — and apply the *same* ones,
@@ -134,32 +131,11 @@ Follow these steps for any UI build/restyle task.
      (b) sections: `"Octen, hero section, web search product"`, `"Octen, logo cloud marquee, web search product"`,
      `"Octen, features grid section, web search product"`, `"Octen, pricing cards section, web search product"`
 
-2. **Scope to trusted sources via `--include-domains`.** ⚠️ **Currently NOT effective
-   — the API's domain filter has a bug and is ignored. Do not rely on it; express any
-   brand or source emphasis in the query text instead (step 1: brand at the front).**
-   The rest of this step applies once the filter is fixed.
-
-   When working, pinning the search to strong design systems (or the reference site)
-   is a direct quality lever: pass `--include-domains` with one or a few domains, e.g.
-   `stripe.com linear.app vercel.com`. **Never fabricate a domain** — a wrong guess
-   (wrong TLD or wrong site) silently returns irrelevant or empty results, with no
-   error to warn you. Use a domain only when it is reliable:
-   - the user gave it explicitly;
-   - it's a well-known brand whose site you are sure of (stripe.com, linear.app); or
-   - it's evident from context — e.g. the API host `api.octen.ai` ⇒ `octen.ai`.
-
-   If you are **not** sure of the exact domain, do not scope. Instead, either keep
-   the brand in the query text (a broad "X-style" search, step 1) or ask the user for
-   the domain. Optional discovery: run one broad query with the brand in the text,
-   read the `source_page` of the top results, and if they cluster on one domain,
-   re-run scoped to it. Omit `--include-domains` entirely to search broadly.
-
-3. **Run the search** (from the skill directory):
+2. **Run the search** (from the skill directory):
 
    ```bash
    python scripts/search.py "pricing comparison table, dark theme, SaaS" \
      --count 5 \
-     --include-domains stripe.com linear.app \
      --out ./.ui-refs
    ```
 
@@ -170,16 +146,16 @@ Follow these steps for any UI build/restyle task.
    (the `octen_refs` array, design refs first), and prints a per-result report
    grouped by topic. To restrict to one topic, pass e.g. `--topics design`.
 
-4. **View the reference images — this is the anchor.** Use the `view` tool on each
+3. **View the reference images — this is the anchor.** Use the `view` tool on each
    `design_N.*` and `general_N.*` path the script printed. The image is always
    present and is the primary signal: read layout, spacing, hierarchy, color, and
    typography directly from it. Lean on the `design_N` images for the structure and
    tokens you implement; use the `general_N` images as a wider mood/style board —
    they broaden the visual direction but carry no `summary` or `html_snippet`, so
-   read everything below (5–6) only from the design refs. Everything below only
+   read everything below (4–5) only from the design refs. Everything below only
    supplements the images.
 
-5. **Use `summary` when present — but expect it to sometimes be empty.** When
+4. **Use `summary` when present — but expect it to sometimes be empty.** When
    returned, `summary` is rich structured markdown with exact design tokens:
    background/foreground colors, font families and sizes, per-tag typography,
    spacing and padding, layout ratios, logo/image counts, and dynamic signals (e.g.
@@ -187,7 +163,7 @@ Follow these steps for any UI build/restyle task.
    it to make the implementation precise. When it is empty or missing, do not
    stall — derive the styling from the image plus the `description` instead.
 
-6. **Use `html_snippet` based on how complete it is — read it first, then judge.**
+5. **Use `html_snippet` based on how complete it is — read it first, then judge.**
    - **If the snippet is detailed and usable** (real list/grid items are present, and
      actual CSS or fully self-contained utility classes are included), lean on it:
      build directly from the snippet, porting it into the project's stack and
@@ -202,8 +178,8 @@ Follow these steps for any UI build/restyle task.
    whatever it uses) and its existing design tokens rather than pasting verbatim, so
    the result stays consistent with the codebase.
 
-7. **Handle no results.** If the script reports `NO RESULTS`, say so, then either
-   broaden the query / drop `--include-domains` and retry once, or proceed on your
+6. **Handle no results.** If the script reports `NO RESULTS`, say so, then either
+   broaden the query and retry once, or proceed on your
    own design judgment. Do not stall.
 
 ## Image-based search
