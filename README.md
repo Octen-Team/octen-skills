@@ -94,25 +94,25 @@ All agents below support the [Agent Skills](https://agentskills.io) standard and
 **npx skills** (recommended):
 
 ```bash
-npx skills add Octen-Team/web-search-skills
+npx skills add Octen-Team/octen-skills
 ```
 
 **curl** (no git needed):
 
 ```bash
 # User-level (available in all projects)
-mkdir -p ~/.claude/skills && curl -sL https://github.com/Octen-Team/web-search-skills/archive/main.tar.gz | tar xz -C ~/.claude/skills --strip-components=2 web-search-skills-main/skills
+mkdir -p ~/.claude/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C ~/.claude/skills --strip-components=2 octen-skills-main/skills
 
 # Project-level
-mkdir -p .claude/skills && curl -sL https://github.com/Octen-Team/web-search-skills/archive/main.tar.gz | tar xz -C .claude/skills --strip-components=2 web-search-skills-main/skills
+mkdir -p .claude/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C .claude/skills --strip-components=2 octen-skills-main/skills
 ```
 
 **Manual** (git clone + cp):
 
 ```bash
-git clone https://github.com/Octen-Team/web-search-skills.git
-mkdir -p ~/.claude/skills && cp -r web-search-skills/skills/* ~/.claude/skills/   # user-level (both skills)
-mkdir -p .claude/skills && cp -r web-search-skills/skills/* .claude/skills/        # project-level (both skills)
+git clone https://github.com/Octen-Team/octen-skills.git
+mkdir -p ~/.claude/skills && cp -r octen-skills/skills/* ~/.claude/skills/   # user-level (both skills)
+mkdir -p .claude/skills && cp -r octen-skills/skills/* .claude/skills/        # project-level (both skills)
 ```
 
 ### OpenClaw
@@ -126,15 +126,15 @@ claw skill install octen-search-skill
 **curl:**
 
 ```bash
-mkdir -p ~/.openclaw/skills && curl -sL https://github.com/Octen-Team/web-search-skills/archive/main.tar.gz | tar xz -C ~/.openclaw/skills --strip-components=2 web-search-skills-main/skills
+mkdir -p ~/.openclaw/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C ~/.openclaw/skills --strip-components=2 octen-skills-main/skills
 ```
 
 **Manual** (git clone + cp):
 
 ```bash
-git clone https://github.com/Octen-Team/web-search-skills.git
+git clone https://github.com/Octen-Team/octen-skills.git
 mkdir -p ~/.openclaw/skills
-cp -r web-search-skills/skills/* ~/.openclaw/skills/
+cp -r octen-skills/skills/* ~/.openclaw/skills/
 ```
 
 ### Cursor
@@ -143,18 +143,18 @@ cp -r web-search-skills/skills/* ~/.openclaw/skills/
 
 ```bash
 # Project-level
-mkdir -p .cursor/skills && curl -sL https://github.com/Octen-Team/web-search-skills/archive/main.tar.gz | tar xz -C .cursor/skills --strip-components=2 web-search-skills-main/skills
+mkdir -p .cursor/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C .cursor/skills --strip-components=2 octen-skills-main/skills
 
 # User-level
-mkdir -p ~/.cursor/skills && curl -sL https://github.com/Octen-Team/web-search-skills/archive/main.tar.gz | tar xz -C ~/.cursor/skills --strip-components=2 web-search-skills-main/skills
+mkdir -p ~/.cursor/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C ~/.cursor/skills --strip-components=2 octen-skills-main/skills
 ```
 
 **Manual** (git clone + cp):
 
 ```bash
-git clone https://github.com/Octen-Team/web-search-skills.git
-mkdir -p .cursor/skills && cp -r web-search-skills/skills/* .cursor/skills/      # project-level (both skills)
-mkdir -p ~/.cursor/skills && cp -r web-search-skills/skills/* ~/.cursor/skills/   # user-level (both skills)
+git clone https://github.com/Octen-Team/octen-skills.git
+mkdir -p .cursor/skills && cp -r octen-skills/skills/* .cursor/skills/      # project-level (both skills)
+mkdir -p ~/.cursor/skills && cp -r octen-skills/skills/* ~/.cursor/skills/   # user-level (both skills)
 ```
 
 ### Codex
@@ -162,15 +162,15 @@ mkdir -p ~/.cursor/skills && cp -r web-search-skills/skills/* ~/.cursor/skills/ 
 **curl:**
 
 ```bash
-mkdir -p ~/.codex/skills && curl -sL https://github.com/Octen-Team/web-search-skills/archive/main.tar.gz | tar xz -C ~/.codex/skills --strip-components=2 web-search-skills-main/skills
+mkdir -p ~/.codex/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C ~/.codex/skills --strip-components=2 octen-skills-main/skills
 ```
 
 **Manual** (git clone + cp):
 
 ```bash
-git clone https://github.com/Octen-Team/web-search-skills.git
+git clone https://github.com/Octen-Team/octen-skills.git
 mkdir -p ~/.codex/skills
-cp -r web-search-skills/skills/* ~/.codex/skills/
+cp -r octen-skills/skills/* ~/.codex/skills/
 ```
 
 ### Hermes Agent
@@ -178,15 +178,15 @@ cp -r web-search-skills/skills/* ~/.codex/skills/
 **curl:**
 
 ```bash
-mkdir -p ~/.hermes/skills && curl -sL https://github.com/Octen-Team/web-search-skills/archive/main.tar.gz | tar xz -C ~/.hermes/skills --strip-components=2 web-search-skills-main/skills
+mkdir -p ~/.hermes/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C ~/.hermes/skills --strip-components=2 octen-skills-main/skills
 ```
 
 **Manual** (git clone + cp):
 
 ```bash
-git clone https://github.com/Octen-Team/web-search-skills.git
+git clone https://github.com/Octen-Team/octen-skills.git
 mkdir -p ~/.hermes/skills
-cp -r web-search-skills/skills/* ~/.hermes/skills/
+cp -r octen-skills/skills/* ~/.hermes/skills/
 ```
 
 ### Other Agents
@@ -194,7 +194,7 @@ cp -r web-search-skills/skills/* ~/.hermes/skills/
 **curl** (adjust the target directory for your agent):
 
 ```bash
-mkdir -p <skills-dir> && curl -sL https://github.com/Octen-Team/web-search-skills/archive/main.tar.gz | tar xz -C <skills-dir> --strip-components=2 web-search-skills-main/skills
+mkdir -p <skills-dir> && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C <skills-dir> --strip-components=2 octen-skills-main/skills
 ```
 
 Or copy from a git clone to the agent's skills directory. All agents following the [Agent Skills](https://agentskills.io) standard read SKILL.md files from their skills folder.
@@ -206,7 +206,7 @@ Or copy from a git clone to the agent's skills directory. All agents following t
 **git clone**: pull the latest changes and re-copy:
 
 ```bash
-cd web-search-skills && git pull
+cd octen-skills && git pull
 cp -r skills/* ~/.claude/skills/      # Claude Code
 cp -r skills/* .cursor/skills/         # Cursor (project-level)
 cp -r skills/* ~/.cursor/skills/       # Cursor (user-level)
@@ -279,7 +279,7 @@ In normal use the agent runs this for you through the skill's workflow (see `ski
 - **Homepage**: https://octen.ai
 - **Agent Skills Standard**: https://agentskills.io
 - **Support**: support@octen.ai
-- **Issues**: https://github.com/Octen-Team/web-search-skills/issues
+- **Issues**: https://github.com/Octen-Team/octen-skills/issues
 
 ## License
 
