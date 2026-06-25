@@ -1,22 +1,23 @@
-# Octen Web Search Skills
+# Octen Skills for AI Coding Agents
 
-Real-time web search skills for AI coding agents, powered by [Octen](https://octen.ai).
+Real-time web search and UI design reference skills for AI coding agents, powered by [Octen](https://octen.ai).
 
 Works with **Claude Code**, **OpenClaw**, **Cursor**, **Codex**, **Hermes Agent**, and other agents that support the [Agent Skills](https://agentskills.io) standard.
 
 <div align="center">
 
-[Prerequisites](#prerequisites) &nbsp;&middot;&nbsp; [Installation](#installation) &nbsp;&middot;&nbsp; [Quick Start](#quick-start) &nbsp;&middot;&nbsp; [Documentation](#documentation)
+[Skills](#skills) &nbsp;&middot;&nbsp; [Prerequisites](#prerequisites) &nbsp;&middot;&nbsp; [Installation](#installation) &nbsp;&middot;&nbsp; [Quick Start](#quick-start) &nbsp;&middot;&nbsp; [Documentation](#documentation)
 
 </div>
 
 ## Skills
 
-This repo ships Octen skills for AI coding agents. The `curl` and `git clone` install methods below copy the whole `skills/` directory, so you get all of them.
+This repo ships two skills. The `curl` and `git clone` install methods below copy the whole `skills/` directory, so you get both.
 
 | Skill | Endpoint | Use it for |
 |--|--|--|
-| **octen-web-search** | `POST /search` | A single, direct query — fast ranked results. |
+| **octen-web-search** | `POST /search` | Real-time web search — a single, direct query returns fast ranked results. |
+| **octen-ui-design-search** | `POST /image-search` | UI design references — pull reference screenshots, structured style tokens, and HTML/CSS snippets before building or restyling a frontend. |
 
 ## Prerequisites
 
@@ -252,6 +253,25 @@ curl -s -X POST "https://api.octen.ai/search" \
     "include_domains": ["nature.com", "science.org"]
   }'
 ```
+
+### UI Design Search (`octen-ui-design-search`)
+
+Find real UI reference designs — each `design` hit comes back with a reference screenshot, a structured style `summary`, and a reusable `html_snippet`:
+
+```bash
+curl -s -X POST "https://api.octen.ai/image-search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{
+    "inputs": [{"type": "text", "data": "pricing comparison table, dark theme, SaaS"}],
+    "topic": "design",
+    "output_modalities": ["image"],
+    "count": 5,
+    "html_snippet": {"enable": true, "max_tokens": 5000}
+  }'
+```
+
+In normal use the agent runs this for you through the skill's workflow (see `skills/octen-ui-design-search/SKILL.md`); the call above is the underlying API request.
 
 ## Documentation
 
