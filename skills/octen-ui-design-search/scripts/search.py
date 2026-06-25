@@ -81,10 +81,6 @@ def build_payload(args, topic):
         # Only honored for topic=design; harmless for general.
         "html_snippet": {"enable": True, "max_tokens": args.max_snippet_tokens},
     }
-    if args.include_domains:
-        payload["include_domains"] = args.include_domains
-    if args.exclude_domains:
-        payload["exclude_domains"] = args.exclude_domains
     return payload
 
 
@@ -239,11 +235,6 @@ def main():
         help="Topics to query (default: design general). design = curated UI corpus; general = broad web images.",
     )
     parser.add_argument(
-        "--include-domains", nargs="*",
-        help="Restrict results to these source domains, e.g. stripe.com linear.app vercel.com.",
-    )
-    parser.add_argument("--exclude-domains", nargs="*", help="Exclude these source domains.")
-    parser.add_argument(
         "--max-snippet-tokens", type=int, default=5000,
         help="Max tokens per html_snippet (default 5000; raise for complex components).",
     )
@@ -283,8 +274,7 @@ def main():
     if not octen_refs:
         print(
             "NO RESULTS. Proceed using your own design judgment, tell the user no "
-            "reference was found, and consider broadening the query or dropping "
-            "domain filters."
+            "reference was found, and consider broadening the query."
         )
         (out / "results.json").write_text(
             json.dumps({"query": args.query, "topics": args.topics, "octen_refs": []},
