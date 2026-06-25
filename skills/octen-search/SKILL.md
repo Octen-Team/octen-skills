@@ -1,12 +1,15 @@
 ---
-name: octen-web-search
+name: octen-search
 description: USE FOR web search. Real-time web search for AI agents powered by Octen. Fast, fresh, and relevant — returns ranked results with highlights, full content, domain filtering, and time filtering. Average response under 80ms with minute-level index freshness.
 homepage: https://octen.ai
 keywords: [web search, search, octen, real-time search, web, news, research, LLM search, AI search]
 metadata: {"clawdbot":{"emoji":"🔍","requires":{"bins":["curl"],"env":["OCTEN_API_KEY"]},"primaryEnv":"OCTEN_API_KEY"}, "homepage": "https://octen.ai", "support": "support@octen.ai"}
 ---
 
-# Octen Web Search
+# Octen Search
+
+Octen's search skill. Today it provides real-time **web search**; broad
+(multi-query) search and image/video search are coming and will be added here.
 
 > **Requires API Key**: Get one at https://octen.ai
 >
@@ -23,7 +26,7 @@ Configure the key for the relevant agent/runtime:
 - **Codex** — `~/.codex/config.toml` → `[shell_environment_policy]`, `set = { OCTEN_API_KEY = "your-key" }`
 - **OpenClaw** — add `OCTEN_API_KEY=your-key` to `~/.openclaw/.env`
 
-See the [README](https://github.com/Octen-Team/web-search-skills#prerequisites) for full per-agent instructions.
+See the [README](https://github.com/Octen-Team/octen-skills#prerequisites) for full per-agent instructions.
 
 ## Quick Start (cURL)
 

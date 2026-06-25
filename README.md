@@ -16,8 +16,22 @@ This repo ships two skills. The `curl` and `git clone` install methods below cop
 
 | Skill | Endpoint | Use it for |
 |--|--|--|
-| **octen-web-search** | `POST /search` | Real-time web search — a single, direct query returns fast ranked results. |
-| **octen-ui-design-search** | `POST /image-search` | UI design references — pull reference screenshots, structured style tokens, and HTML/CSS snippets before building or restyling a frontend. |
+| **Octen Search** (`octen-search`) | `POST /search` | Real-time web search — a single, direct query returns fast ranked results. Broad (multi-query) and image/video search are coming. |
+| **Octen Design** (`octen-design`) | `POST /image-search` | UI design references — reference screenshots, structured style tokens, and HTML/CSS snippets before building or restyling a frontend. **Invite-only beta — [contact Octen](https://octen.ai) for access.** |
+
+## Why Octen Skills
+
+### Fast
+Web search averages under 80ms — fast enough for multi-step agent workflows.
+
+### Accurate
+Powered by SOTA text and VL embedding models. Better sources, fewer hallucinations.
+
+### Fresh
+Live web data with minute-level index updates. Useful for news, prices, and fast-moving pages.
+
+### Efficient
+Clean highlights, optional full content, and time/domain filters keep model context relevant.
 
 ## Prerequisites
 
@@ -88,6 +102,17 @@ export OCTEN_API_KEY="your-key"
 ## Installation
 
 All agents below support the [Agent Skills](https://agentskills.io) standard and read SKILL.md files from their skills directory.
+
+### One-line install
+
+| Agent | Command |
+|--|--|
+| Claude Code | `npx skills add Octen-Team/octen-skills` |
+| Cursor | `mkdir -p ~/.cursor/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz \| tar xz -C ~/.cursor/skills --strip-components=2 octen-skills-main/skills` |
+| Codex | `mkdir -p ~/.codex/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz \| tar xz -C ~/.codex/skills --strip-components=2 octen-skills-main/skills` |
+| Other | `mkdir -p <skills-dir> && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz \| tar xz -C <skills-dir> --strip-components=2 octen-skills-main/skills` |
+
+Claude Desktop has no skills runtime — use one of the agents above. Per-agent details and API-key setup follow.
 
 ### Claude Code
 
@@ -217,7 +242,7 @@ cp -r skills/* ~/.hermes/skills/       # Hermes Agent
 
 ## Quick Start
 
-### Basic Search (`octen-web-search`)
+### Basic Search (`octen-search`)
 
 ```bash
 curl -s -X POST "https://api.octen.ai/search" \
@@ -254,9 +279,9 @@ curl -s -X POST "https://api.octen.ai/search" \
   }'
 ```
 
-### UI Design Search (`octen-ui-design-search`)
+### Octen Design (`octen-design`) — invite-only beta
 
-Find real UI reference designs — each `design` hit comes back with a reference screenshot, a structured style `summary`, and a reusable `html_snippet`:
+Find real UI reference designs — each `design` hit comes back with a reference screenshot, a structured style `summary`, and a reusable `html_snippet`. **Octen Design is in invite-only beta; [contact Octen](https://octen.ai) for access.**
 
 ```bash
 curl -s -X POST "https://api.octen.ai/image-search" \
@@ -271,7 +296,7 @@ curl -s -X POST "https://api.octen.ai/image-search" \
   }'
 ```
 
-In normal use the agent runs this for you through the skill's workflow (see `skills/octen-ui-design-search/SKILL.md`); the call above is the underlying API request.
+In normal use the agent runs this for you through the skill's workflow (see `skills/octen-design/SKILL.md`); the call above is the underlying API request.
 
 ## Documentation
 

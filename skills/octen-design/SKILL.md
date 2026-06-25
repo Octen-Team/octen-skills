@@ -1,5 +1,5 @@
 ---
-name: octen-ui-design-search
+name: octen-design
 description: >-
   Pull real-world UI design references before building any frontend. Use this skill
   whenever implementing, restyling, or improving any web UI in Claude Code — pages,
@@ -13,7 +13,11 @@ description: >-
   pure logic/back-end work with no visual surface.
 ---
 
-# UI Design Search
+# Octen Design
+
+> **Invite-only beta.** Octen Design is currently in invite-only beta. To request
+> access, contact Octen at support@octen.ai (or via https://octen.ai). Calls will
+> fail without access — if so, tell the user it's invite-only and how to reach Octen.
 
 Before writing frontend code, **search for real reference designs and build from
 them.** Designing UI blind tends to produce generic, low-polish output; grounding
