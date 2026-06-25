@@ -101,144 +101,37 @@ export OCTEN_API_KEY="your-key"
 
 ## Installation
 
-All agents below support the [Agent Skills](https://agentskills.io) standard and read SKILL.md files from their skills directory.
+Both skills follow the [Agent Skills](https://agentskills.io) standard. The easiest install is the [`skills`](https://github.com/vercel-labs/skills) CLI, which auto-detects your agent:
 
-### One-line install
+```bash
+npx skills add Octen-Team/octen-skills        # current agent, project-level
+npx skills add Octen-Team/octen-skills -g     # user-level (all projects)
+npx skills add Octen-Team/octen-skills -a '*' # every detected agent
+```
+
+To target a specific agent, pass `-a`:
 
 | Agent | Command |
 |--|--|
-| Claude Code | `npx skills add Octen-Team/octen-skills` |
-| Cursor | `mkdir -p ~/.cursor/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz \| tar xz -C ~/.cursor/skills --strip-components=2 octen-skills-main/skills` |
-| Codex | `mkdir -p ~/.codex/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz \| tar xz -C ~/.codex/skills --strip-components=2 octen-skills-main/skills` |
-| Other | `mkdir -p <skills-dir> && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz \| tar xz -C <skills-dir> --strip-components=2 octen-skills-main/skills` |
+| Claude Code | `npx skills add Octen-Team/octen-skills -a claude-code` |
+| Cursor | `npx skills add Octen-Team/octen-skills -a cursor` |
+| Codex | `npx skills add Octen-Team/octen-skills -a codex` |
+| Gemini CLI | `npx skills add Octen-Team/octen-skills -a gemini-cli` |
+| Windsurf | `npx skills add Octen-Team/octen-skills -a windsurf` |
+| OpenClaw | `npx skills add Octen-Team/octen-skills -a openclaw` |
+| Hermes Agent | `npx skills add Octen-Team/octen-skills -a hermes-agent` |
 
-Claude Desktop has no skills runtime — use one of the agents above. Per-agent details and API-key setup follow.
+`skills` supports many more agents (cline, roo, zed, github-copilot, opencode, qwen-code, …) — run `npx skills add --help` for the full list. Update later with `npx skills update`.
 
-### Claude Code
+### No Node? curl fallback
 
-**npx skills** (recommended):
-
-```bash
-npx skills add Octen-Team/octen-skills
-```
-
-**curl** (no git needed):
-
-```bash
-# User-level (available in all projects)
-mkdir -p ~/.claude/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C ~/.claude/skills --strip-components=2 octen-skills-main/skills
-
-# Project-level
-mkdir -p .claude/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C .claude/skills --strip-components=2 octen-skills-main/skills
-```
-
-**Manual** (git clone + cp):
-
-```bash
-git clone https://github.com/Octen-Team/octen-skills.git
-mkdir -p ~/.claude/skills && cp -r octen-skills/skills/* ~/.claude/skills/   # user-level (both skills)
-mkdir -p .claude/skills && cp -r octen-skills/skills/* .claude/skills/        # project-level (both skills)
-```
-
-### OpenClaw
-
-**clawhub** (recommended):
-
-```bash
-claw skill install octen-search-skill
-```
-
-**curl:**
-
-```bash
-mkdir -p ~/.openclaw/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C ~/.openclaw/skills --strip-components=2 octen-skills-main/skills
-```
-
-**Manual** (git clone + cp):
-
-```bash
-git clone https://github.com/Octen-Team/octen-skills.git
-mkdir -p ~/.openclaw/skills
-cp -r octen-skills/skills/* ~/.openclaw/skills/
-```
-
-### Cursor
-
-**curl:**
-
-```bash
-# Project-level
-mkdir -p .cursor/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C .cursor/skills --strip-components=2 octen-skills-main/skills
-
-# User-level
-mkdir -p ~/.cursor/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C ~/.cursor/skills --strip-components=2 octen-skills-main/skills
-```
-
-**Manual** (git clone + cp):
-
-```bash
-git clone https://github.com/Octen-Team/octen-skills.git
-mkdir -p .cursor/skills && cp -r octen-skills/skills/* .cursor/skills/      # project-level (both skills)
-mkdir -p ~/.cursor/skills && cp -r octen-skills/skills/* ~/.cursor/skills/   # user-level (both skills)
-```
-
-### Codex
-
-**curl:**
-
-```bash
-mkdir -p ~/.codex/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C ~/.codex/skills --strip-components=2 octen-skills-main/skills
-```
-
-**Manual** (git clone + cp):
-
-```bash
-git clone https://github.com/Octen-Team/octen-skills.git
-mkdir -p ~/.codex/skills
-cp -r octen-skills/skills/* ~/.codex/skills/
-```
-
-### Hermes Agent
-
-**curl:**
-
-```bash
-mkdir -p ~/.hermes/skills && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C ~/.hermes/skills --strip-components=2 octen-skills-main/skills
-```
-
-**Manual** (git clone + cp):
-
-```bash
-git clone https://github.com/Octen-Team/octen-skills.git
-mkdir -p ~/.hermes/skills
-cp -r octen-skills/skills/* ~/.hermes/skills/
-```
-
-### Other Agents
-
-**curl** (adjust the target directory for your agent):
+If you can't run `npx`, copy the `skills/` directory into your agent's skills folder:
 
 ```bash
 mkdir -p <skills-dir> && curl -sL https://github.com/Octen-Team/octen-skills/archive/main.tar.gz | tar xz -C <skills-dir> --strip-components=2 octen-skills-main/skills
 ```
 
-Or copy from a git clone to the agent's skills directory. All agents following the [Agent Skills](https://agentskills.io) standard read SKILL.md files from their skills folder.
-
-### Updating
-
-**curl**: re-run the curl command above to overwrite with the latest version.
-
-**git clone**: pull the latest changes and re-copy:
-
-```bash
-cd octen-skills && git pull
-cp -r skills/* ~/.claude/skills/      # Claude Code
-cp -r skills/* .cursor/skills/         # Cursor (project-level)
-cp -r skills/* ~/.cursor/skills/       # Cursor (user-level)
-cp -r skills/* ~/.codex/skills/        # Codex
-cp -r skills/* ~/.openclaw/skills/     # OpenClaw
-cp -r skills/* ~/.hermes/skills/       # Hermes Agent
-```
+Common `<skills-dir>` values: `~/.claude/skills`, `~/.cursor/skills`, `~/.codex/skills`, `~/.openclaw/skills`, `~/.hermes/skills` (use a project-local `.<agent>/skills` for project scope). Re-run to update.
 
 ## Quick Start
 
