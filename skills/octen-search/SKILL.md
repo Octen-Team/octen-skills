@@ -177,10 +177,21 @@ POST https://api.octen.ai/search
 
 ## Broad Search
 
-For research-style questions that benefit from several angles, **Broad Search**
-decomposes your query into related sub-queries, searches them concurrently, and
-returns results **grouped per sub-query** (not deduplicated across groups) for
-comprehensive coverage. Use plain `/search` for a single focused query.
+**Broad Search** expands your query into several related sub-queries from
+different angles, searches them concurrently, and returns results **grouped per
+sub-query** (not deduplicated across groups) — ready to ground a complete answer.
+
+**Use it when** a single `/search` only reaches a few of the relevant subtopics:
+- **Comparisons** across many sources (pricing, products, vendors)
+- **Surveys / deeper research**
+- **Multi-angle questions** that have more than one facet
+
+For a single focused lookup, use plain `/search` instead.
+
+**Pass the original query as-is** — Octen generates the sub-queries for you, so
+do **not** rewrite or pre-split the question into multiple calls; to widen
+coverage, raise `max_queries` (default `5`; up to `30` for surveys/research,
+lower for a tighter search).
 
 ### Endpoint
 
@@ -206,7 +217,7 @@ curl -s -X POST "https://api.octen.ai/broad-search" \
 | Parameter | Type | Required | Default | Description |
 |--|--|--|--|--|
 | `query` | string | **Yes** | - | Original search query (max 500 chars) |
-| `max_queries` | integer | No | `5` | Upper bound on the number of sub-queries generated (1–30) |
+| `max_queries` | integer | No | `5` | Upper bound on the number of sub-queries generated (1–30); raise toward 30 for surveys/research, lower for a tighter search |
 | `search_options` | object | No | - | Options applied to **each** sub-query — same fields and defaults as the [Parameters](#parameters) table above (`topic`, `count`, `include_domains`, time filters, `highlight`, `full_content`, `include_images`, …) |
 
 ### Response
