@@ -16,7 +16,7 @@ This repo ships two skills. The `curl` and `git clone` install methods below cop
 
 | Skill | Endpoint | Use it for |
 |--|--|--|
-| **Octen Search** (`octen-search`) | `POST /search` | Real-time web search — a single, direct query returns fast ranked results. Broad (multi-query) and image/video search are coming. |
+| **Octen Search** (`octen-search`) | `POST /search`, `POST /broad-search` | Real-time web search — a single direct query returns fast ranked results, or broad (multi-query) search fans one question into several sub-queries for comprehensive coverage. Image/video search is coming. |
 | **Octen Design** (`octen-design`) | `POST /image-search` | UI design references — reference screenshots, structured style tokens, and HTML/CSS snippets before building or restyling a frontend. **Invite-only beta — [contact Octen](https://octen.ai) for access.** |
 
 ## Why Octen Skills
