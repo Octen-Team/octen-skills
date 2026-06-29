@@ -19,6 +19,7 @@ This repo ships these skills. The `curl` and `git clone` install methods below c
 | **Octen Search** (`octen-search`) | `POST /search`, `POST /broad-search` | Real-time web search — a single direct query returns fast ranked results, or broad (multi-query) search fans one question into several sub-queries for comprehensive coverage. |
 | **Octen Image Search** (`octen-image-search`) | `POST /image-search` | General image search by text and/or a reference image — ranked images with thumbnail, source, dimensions. (For UI design refs use `octen-design`.) **In Beta — [contact us](https://octen.ai) to request beta access.** |
 | **Octen Video Search** (`octen-video-search`) | `POST /video-search` | Find web videos by a text query — returns ranked videos with the matched segment (timestamps), duration, cover, and source. **In Beta — [contact us](https://octen.ai) to request beta access.** |
+| **Octen Extract** (`octen-extract`) | `POST /extract` | Fetch 1–20 URLs and return clean markdown/text content plus a category, page-structure label, and optional query-driven highlights. |
 | **Octen Design** (`octen-design`) | `POST /image-search` | UI design references — reference screenshots, structured style tokens, and HTML/CSS snippets before building or restyling a frontend. **In Beta — [contact us](https://octen.ai) to request beta access.** |
 
 ## Why Octen Skills
