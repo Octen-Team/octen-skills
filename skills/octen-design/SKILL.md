@@ -15,9 +15,9 @@ description: >-
 
 # Octen Design
 
-> **Invite-only beta.** Octen Design is currently in invite-only beta. To request
-> access, contact Octen at support@octen.ai (or via https://octen.ai). Calls will
-> fail without access — if so, tell the user it's invite-only and how to reach Octen.
+> **In Beta. Contact us to request beta access.** Octen Design is in invite-only
+> beta — request access via https://octen.ai (or support@octen.ai). Calls will fail
+> without access; if so, tell the user it's in beta and how to reach Octen.
 
 Before writing frontend code, **search for real reference designs and build from
 them.** Designing UI blind tends to produce generic, low-polish output; grounding

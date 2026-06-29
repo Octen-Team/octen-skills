@@ -12,12 +12,13 @@ Works with **Claude Code**, **OpenClaw**, **Cursor**, **Codex**, **Hermes Agent*
 
 ## Skills
 
-This repo ships two skills. The `curl` and `git clone` install methods below copy the whole `skills/` directory, so you get both.
+This repo ships these skills. The `curl` and `git clone` install methods below copy the whole `skills/` directory, so you get all of them.
 
 | Skill | Endpoint | Use it for |
 |--|--|--|
 | **Octen Search** (`octen-search`) | `POST /search` | Real-time web search — a single, direct query returns fast ranked results. Broad (multi-query) and image/video search are coming. |
-| **Octen Design** (`octen-design`) | `POST /image-search` | UI design references — reference screenshots, structured style tokens, and HTML/CSS snippets before building or restyling a frontend. **Invite-only beta — [contact Octen](https://octen.ai) for access.** |
+| **Octen Design** (`octen-design`) | `POST /image-search` | UI design references — reference screenshots, structured style tokens, and HTML/CSS snippets before building or restyling a frontend. **In Beta — [contact us](https://octen.ai) to request beta access.** |
+| **Octen Video Search** (`octen-video-search`) | `POST /video-search` | Find web videos by a text query — returns ranked videos with the matched segment (timestamps), duration, cover, and source. **In Beta — [contact us](https://octen.ai) to request beta access.** |
 
 ## Why Octen Skills
 
