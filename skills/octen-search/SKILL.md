@@ -1,6 +1,6 @@
 ---
 name: octen-search
-description: USE FOR web search. Real-time web search for AI agents powered by Octen. Fast, fresh, and relevant — returns ranked results with highlights, full content, domain filtering, and time filtering. Average response under 80ms with minute-level index freshness.
+description: USE FOR web search. Real-time web search for AI agents powered by Octen. Fast, fresh, and relevant — returns ranked results with highlights, full content, domain filtering, and time filtering. Average response under 80ms with minute-level index freshness. Also supports broad (multi-query) search that fans one question into several sub-queries for comprehensive coverage.
 homepage: https://octen.ai
 keywords: [web search, search, octen, real-time search, web, news, research, LLM search, AI search]
 metadata: {"clawdbot":{"emoji":"🔍","requires":{"bins":["curl"],"env":["OCTEN_API_KEY"]},"primaryEnv":"OCTEN_API_KEY"}, "homepage": "https://octen.ai", "support": "support@octen.ai"}
@@ -8,8 +8,10 @@ metadata: {"clawdbot":{"emoji":"🔍","requires":{"bins":["curl"],"env":["OCTEN_
 
 # Octen Search
 
-Octen's search skill. Today it provides real-time **web search**; broad
-(multi-query) search and image/video search are coming and will be added here.
+Octen's search skill. It provides real-time **web search** plus **broad
+(multi-query) search** (see [Broad Search](#broad-search) below). Image and
+video search live in the separate **octen-image-search** and
+**octen-video-search** skills.
 
 > **Requires API Key**: Get one at https://octen.ai
 >
@@ -173,6 +175,64 @@ POST https://api.octen.ai/search
   }
 }
 ```
+
+## Broad Search
+
+**Broad Search** expands your query into several related sub-queries from
+different angles, searches them concurrently, and returns results **grouped per
+sub-query** (not deduplicated across groups) — ready to ground a complete answer.
+
+**Use it when** a single `/search` only reaches a few of the relevant subtopics:
+- **Comparisons** across many sources (pricing, products, vendors)
+- **Surveys / deeper research**
+- **Multi-angle questions** that have more than one facet
+
+For a single focused lookup, use plain `/search` instead.
+
+**Pass the original query as-is** — Octen generates the sub-queries for you, so
+do **not** rewrite or pre-split the question into multiple calls; to widen
+coverage, raise `max_queries` (default `5`; up to `30` for surveys/research,
+lower for a tighter search).
+
+### Endpoint
+
+```http
+POST https://api.octen.ai/broad-search
+```
+
+### Example
+
+```bash
+curl -s -X POST "https://api.octen.ai/broad-search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{
+    "query": "compare cloud GPU pricing across major providers",
+    "max_queries": 5,
+    "search_options": {"count": 10, "highlight": {"enable": true}}
+  }'
+```
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|--|--|--|--|--|
+| `query` | string | **Yes** | - | Original search query (max 500 chars) |
+| `max_queries` | integer | No | `5` | Upper bound on the number of sub-queries generated (1–30); raise toward 30 for surveys/research, lower for a tighter search |
+| `search_options` | object | No | - | Options applied to **each** sub-query — same fields and defaults as the [Parameters](#parameters) table above (`topic`, `count`, `include_domains`, time filters, `highlight`, `full_content`, `include_images`, …) |
+
+### Response
+
+Same envelope (`code`, `msg`, `request_id`, `meta`) as Search. `data` contains:
+
+| Field | Type | Description |
+|--|--|--|
+| `data.query` | string | The original query |
+| `data.queries[]` | string[] | The generated sub-queries |
+| `data.search_results[]` | array | One result group per sub-query |
+| `data.search_results[].query` | string | The sub-query for this group |
+| `data.search_results[].results[]` | array | Results for that sub-query (same shape as Search `data.results[]`) |
+| `data.search_results[].latency` | integer | Latency for that sub-query, in milliseconds |
 
 ## Error Codes
 
