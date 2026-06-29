@@ -9,8 +9,9 @@ metadata: {"clawdbot":{"emoji":"🔍","requires":{"bins":["curl"],"env":["OCTEN_
 # Octen Search
 
 Octen's search skill. It provides real-time **web search** plus **broad
-(multi-query) search** (see [Broad Search](#broad-search) below); image/video
-search is coming and will be added here.
+(multi-query) search** (see [Broad Search](#broad-search) below). Image and
+video search live in the separate **octen-image-search** and
+**octen-video-search** skills.
 
 > **Requires API Key**: Get one at https://octen.ai
 >

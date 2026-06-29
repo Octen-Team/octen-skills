@@ -19,7 +19,7 @@ author — so you can jump straight to the relevant moment.
 
 ## API Key Setup
 
-**Before searching, ensure `OCTEN_API_KEY` is set. If it is missing — or any call returns `401` — stop and do not retry blindly: tell the user a key is required, point them to https://octen.ai, help them configure it for their agent, then continue once it's set. A `403` means your key is valid but lacks beta access — tell the user Video Search is in beta and how to request access.**
+**Before searching, ensure `OCTEN_API_KEY` is set. If it is missing — or any call returns `401` — stop and do not retry blindly: tell the user a key is required, point them to https://octen.ai, help them configure it for their agent, then continue once it's set. A `403` means the key is valid but the request was refused — either no beta access or insufficient account balance; relay both possibilities and how to request beta access.**
 
 Configure the key for the relevant agent (same as other Octen skills):
 

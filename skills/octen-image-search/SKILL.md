@@ -23,7 +23,7 @@ includes a thumbnail, the source page, dimensions, and a description.
 
 ## API Key Setup
 
-**Before searching, ensure `OCTEN_API_KEY` is set. On `401`, stop and tell the user a key is required (https://octen.ai). On `403`, the key is valid but lacks beta access — tell the user Image Search is in beta and how to request access.**
+**Before searching, ensure `OCTEN_API_KEY` is set. On `401`, stop and tell the user a key is required (https://octen.ai). On `403`, the key is valid but the request was refused — this means either no beta access or insufficient account balance; relay both possibilities and how to request beta access.**
 
 Configure the key for the relevant agent (same as other Octen skills):
 
