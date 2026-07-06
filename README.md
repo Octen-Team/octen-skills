@@ -186,7 +186,6 @@ curl -s -X POST "https://api.octen.ai/image-search" \
   -d '{
     "inputs": [{"type": "text", "data": "pricing comparison table, dark theme, SaaS"}],
     "topic": "design",
-    "output_modalities": ["image"],
     "count": 5,
     "html_snippet": {"enable": true, "max_tokens": 5000}
   }'

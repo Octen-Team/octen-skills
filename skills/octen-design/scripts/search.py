@@ -76,7 +76,6 @@ def build_payload(args, topic):
     payload = {
         "inputs": inputs,
         "topic": topic,
-        "output_modalities": ["image"],
         "count": args.count,
         # Only honored for topic=design; harmless for general.
         "html_snippet": {"enable": True, "max_tokens": args.max_snippet_tokens},

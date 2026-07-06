@@ -63,13 +63,12 @@ curl -s -X POST "https://api.octen.ai/extract" \
 |--|--|--|--|--|
 | `urls` | string[] | **Yes** | - | 1–20 URLs to fetch in one batch |
 | `query` | string | No | - | When set, each result returns query-relevant `highlights` and OMITS `full_content` (max 500 chars) |
-| `max_age_seconds` | integer | No | `86400` | Accept cached results within this age (300–31536000) |
+| `max_age_seconds` | integer | No | `86400` | Accept cached results within this age (min 300); older cached versions are re-fetched |
 | `format` | string | No | `markdown` | Content format: `markdown` or `text` |
 | `timeout` | integer | No | `30` | Per-URL fetch budget in seconds (1–60) |
-| `include_images` | boolean | No | `false` | Include image URLs found on the page |
+| `include_images` | boolean | No | `false` | Include image resources found on the page (also returns `cover_image` when the page has one) |
 | `include_videos` | boolean | No | `false` | Include video URLs found on the page |
 | `include_audio` | boolean | No | `false` | Include audio URLs found on the page |
-| `include_favicon` | boolean | No | `false` | Include the page favicon |
 
 ## Response Format
 
@@ -87,7 +86,9 @@ curl -s -X POST "https://api.octen.ai/extract" \
 | `data.results[].page_structure` | object? | `{primary, secondary}` — what kind of page it is |
 | `data.results[].time_published` | string? | Publish time, ISO 8601 |
 | `data.results[].time_last_crawled` | string? | Last crawl time, ISO 8601 |
-| `data.results[].favicon` / `images` / `videos` / `audio` | — | Media (when the matching `include_*` is true) |
+| `data.results[].favicon` | string? | Page favicon URL — returned by default when available |
+| `data.results[].cover_image` | object? | `{url}` — page cover image (when `include_images` is true and the page has one) |
+| `data.results[].images` / `videos` / `audio` | — | Media resources (when the matching `include_*` is true) |
 | `meta.usage.total_urls` | integer | URLs requested |
 | `meta.usage.successful_urls` | integer | URLs successfully fetched |
 
