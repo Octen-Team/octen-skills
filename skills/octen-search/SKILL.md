@@ -112,7 +112,7 @@ POST https://api.octen.ai/search
 | `exclude_domains` | string[] | No | - | Exclude results from these domains (max 150 domains, each max 30 chars) |
 | `include_text` | string[] | No | - | Strings that must appear in result page text (max 5 items, each max 30 chars) |
 | `exclude_text` | string[] | No | - | Strings that must not appear in result page text (max 5 items, each max 30 chars) |
-| `country` | string | No | `auto` | Country code for region-specific results: ISO 3166-1 alpha-2 (e.g. `US`, `JP`), or `auto` to determine automatically. Options: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 |
+| `country` | string | No | `auto` | Follow ISO 3166, the International Standard for country codes and codes for their subdivisions (e.g. `US`, `JP`); `auto` determines it automatically. Options: https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 |
 | `time_basis` | string | No | `auto` | Time field used for filtering: `auto`, `published`, `crawled` |
 | `start_time` | string | No | - | Start time filter, ISO 8601 (e.g. `2025-01-01T00:00:00Z`) |
 | `end_time` | string | No | - | End time filter, ISO 8601 (must be after `start_time`) |
@@ -268,6 +268,6 @@ Same envelope (`code`, `msg`, `request_id`, `meta`) as Search. `data` contains:
 - **Highlight** is enabled by default — set `"highlight": {"enable": false}` to disable
 - **Full content** is disabled by default — enable it to get raw page text for RAG/grounding
 - Use `include_domains` / `exclude_domains` to scope results to trusted sources
-- Use `country` (ISO 3166-1 alpha-2, e.g. `"JP"`) for region-specific results — on Broad Search set it **inside `search_options`**, not top-level
+- Use `country` (ISO 3166 country code, e.g. `"JP"`) for region-specific results — on Broad Search set it **inside `search_options`**, not top-level
 - Use `start_time` / `end_time` with `time_basis` to filter by publish or crawl time
 - `format: "markdown"` returns highlights in markdown; `format: "text"` returns plain text
