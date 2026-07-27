@@ -68,6 +68,18 @@ curl -s -X POST "https://api.octen.ai/search" \
   }'
 ```
 
+### With Language Filtering
+```bash
+curl -s -X POST "https://api.octen.ai/search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{
+    "query": "climate change 2026",
+    "count": 5,
+    "language": ["ja", "zh"]
+  }'
+```
+
 ### With Full Content
 ```bash
 curl -s -X POST "https://api.octen.ai/search" \
@@ -100,6 +112,7 @@ POST https://api.octen.ai/search
 | `exclude_domains` | string[] | No | - | Exclude results from these domains (max 150 domains, each max 30 chars) |
 | `include_text` | string[] | No | - | Strings that must appear in result page text (max 5 items, each max 30 chars) |
 | `exclude_text` | string[] | No | - | Strings that must not appear in result page text (max 5 items, each max 30 chars) |
+| `language` | string[] | No | `[]` | Filter results to these languages, as ISO 639-1 codes (e.g. `["en", "ja"]`). Supported: `ar`, `de`, `en`, `es`, `fr`, `hi`, `id`, `it`, `ja`, `ko`, `nl`, `pl`, `pt`, `ru`, `th`, `tr`, `vi`, `zh`. Empty = no language filter. See https://localizely.com/iso-639-1-list/ |
 | `time_basis` | string | No | `auto` | Time field used for filtering: `auto`, `published`, `crawled` |
 | `start_time` | string | No | - | Start time filter, ISO 8601 (e.g. `2025-01-01T00:00:00Z`) |
 | `end_time` | string | No | - | End time filter, ISO 8601 (must be after `start_time`) |
@@ -219,7 +232,7 @@ curl -s -X POST "https://api.octen.ai/broad-search" \
 |--|--|--|--|--|
 | `query` | string | **Yes** | - | Original search query (max 500 chars) |
 | `max_queries` | integer | No | `5` | Upper bound on the number of sub-queries generated (1–30); raise toward 30 for surveys/research, lower for a tighter search |
-| `search_options` | object | No | - | Options applied to **each** sub-query — same fields and defaults as the [Parameters](#parameters) table above (`topic`, `count`, `include_domains`, time filters, `highlight`, `full_content`, `include_images`, …) |
+| `search_options` | object | No | - | Options applied to **each** sub-query — same fields and defaults as the [Parameters](#parameters) table above (`topic`, `count`, `include_domains`, `language`, time filters, `highlight`, `full_content`, `include_images`, …) |
 
 ### Response
 
@@ -255,5 +268,6 @@ Same envelope (`code`, `msg`, `request_id`, `meta`) as Search. `data` contains:
 - **Highlight** is enabled by default — set `"highlight": {"enable": false}` to disable
 - **Full content** is disabled by default — enable it to get raw page text for RAG/grounding
 - Use `include_domains` / `exclude_domains` to scope results to trusted sources
+- Use `language` (ISO 639-1 codes, e.g. `["ja", "zh"]`) to filter results by language — on Broad Search set it **inside `search_options`**, not top-level
 - Use `start_time` / `end_time` with `time_basis` to filter by publish or crawl time
 - `format: "markdown"` returns highlights in markdown; `format: "text"` returns plain text
