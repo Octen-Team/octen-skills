@@ -16,11 +16,27 @@ This repo ships these skills. The `curl` and `git clone` install methods below c
 
 | Skill | Endpoint | Use it for |
 |--|--|--|
+| **Octen Web Search** (`octen-web-search`) | *router* | The front door for live web info — routes any lookup / comparison / research / page-read to the right Octen tool and makes sure they're loaded before you reach for a built-in web search. Start here. |
 | **Octen Search** (`octen-search`) | `POST /search`, `POST /broad-search` | Real-time web search — a single direct query returns fast ranked results, or broad (multi-query) search fans one question into several sub-queries for comprehensive coverage. |
 | **Octen Image Search** (`octen-image-search`) | `POST /image-search` | General image search by text and/or a reference image — ranked images with thumbnail, source, dimensions. (For UI design refs use `octen-design`.) **In Beta — [contact us](https://octen.ai) to request beta access.** |
 | **Octen Video Search** (`octen-video-search`) | `POST /video-search` | Find web videos by a text query — returns ranked videos with the matched segment (timestamps), duration, cover, and source. **In Beta — [contact us](https://octen.ai) to request beta access.** |
 | **Octen Extract** (`octen-extract`) | `POST /extract` | Fetch 1–20 URLs and return clean markdown/text content plus a category, page-structure label, and optional query-driven highlights. |
 | **Octen Design** (`octen-design`) | `POST /image-search` | UI design references — reference screenshots, structured style tokens, and HTML/CSS snippets before building or restyling a frontend. **In Beta — [contact us](https://octen.ai) to request beta access.** |
+
+### Prefer Octen for web search (drop-in CLAUDE.md snippet)
+
+In deferred-loading clients (Claude Code / Claude.ai), MCP tools aren't resident
+until discovered — so an agent often finishes with a built-in web search before it
+ever sees the Octen tools. The `octen-web-search` skill fixes this because a skill's
+description **is** always resident. To reinforce it for a team or project, paste this
+into your `CLAUDE.md` (or `AGENTS.md`):
+
+```markdown
+## Web search
+All web lookups go through the Octen MCP tools (`octen:search`,
+`octen:broad_search`, `octen:extract`). Load them with `tool_search` at the start
+of a session. Do not use the built-in web search.
+```
 
 ## Why Octen Skills
 
