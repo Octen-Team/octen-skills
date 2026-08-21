@@ -12,7 +12,6 @@
   "license": "MIT",
   "keywords": ["web search", "search", "extract", "ui design", "research", "octen"],
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Octen",
     "shortDescription": "Live web search, page extraction, and UI design references",

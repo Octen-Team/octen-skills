@@ -88,7 +88,7 @@ Common `<skills-dir>` values: `~/.claude/skills`, `~/.cursor/skills`, `~/.codex/
 
 ### Codex plugin (marketplace install)
 
-This repo also ships as a [Codex plugin](https://developers.openai.com/codex/plugins): `.codex-plugin/plugin.json` bundles all six skills together with the `octen-mcp` server (`.mcp.json`), and `.agents/plugins/marketplace.json` exposes the repo as a plugin marketplace. Add the repo as a marketplace source in Codex, then install the **Octen** plugin from `codex plugins`. Set `OCTEN_API_KEY` in your environment before first use (see [Prerequisites](#prerequisites)); the image/video/design skills additionally require invite-only beta access.
+This repo also ships as a skills-only [Codex plugin](https://developers.openai.com/codex/plugins): `.codex-plugin/plugin.json` bundles all six skills, and `.agents/plugins/marketplace.json` exposes the repo as a plugin marketplace. (The skills call the Octen HTTP API directly via curl, so no MCP server is bundled; to use the optional `octen-mcp` server instead, see [Connect octen-mcp](https://github.com/Octen-Team/octen-mcp).) Add the repo as a marketplace source in Codex, then install the **Octen** plugin from `codex plugins`. Set `OCTEN_API_KEY` in your environment before first use (see [Prerequisites](#prerequisites)); the image/video/design skills additionally require invite-only beta access.
 
 ## Prerequisites
 

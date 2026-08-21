@@ -1,6 +1,0 @@
-{
-  "octen": {
-    "command": "npx",
-    "args": ["-y", "octen-mcp"]
-  }
-}
