@@ -107,6 +107,7 @@ POST https://api.octen.ai/search
 | Parameter | Type | Required | Default | Description |
 |--|--|--|--|--|
 | `query` | string | **Yes** | - | Search query (max 500 chars) |
+| `topic` | string | No | `general` | Search vertical: `general` or `news` |
 | `count` | integer | No | `5` | Number of results (1–100) |
 | `include_domains` | string[] | No | - | Only include results from these domains (max 1000 domains, each max 30 chars) |
 | `exclude_domains` | string[] | No | - | Exclude results from these domains (max 150 domains, each max 30 chars) |
@@ -120,6 +121,8 @@ POST https://api.octen.ai/search
 | `format` | string | No | `text` | Output format for highlights: `text` or `markdown` |
 | `safesearch` | string | No | `strict` | Adult content filter: `off` or `strict` |
 | `full_content` | object | No | `{"enable": false}` | Full content options (see below) |
+| `include_images` | boolean | No | `false` | Return image URLs found per result |
+| `include_videos` | boolean | No | `false` | Return video URLs found per result |
 
 ### Highlight Options
 

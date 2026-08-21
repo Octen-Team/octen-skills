@@ -25,7 +25,9 @@ import base64
 import json
 import mimetypes
 import os
+import re
 import sys
+import time
 import urllib.error
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -47,13 +49,31 @@ DEFAULT_TOPICS = ["design", "general"]
 ERROR_HINTS = {
     400: "Missing or malformed parameter.",
     401: "Invalid API key. Check the OCTEN_API_KEY environment variable.",
-    403: "Insufficient account balance.",
+    403: "No beta access for this endpoint, or insufficient account balance "
+         "(the server message below says which).",
     413: "Input too large (image > 5MB, or query too long).",
     415: "Unsupported input media type.",
     422: "Input unreadable, invalid, or unsupported topic.",
     429: "Rate limit exceeded. Wait and retry.",
     500: "Server error. Retry later.",
 }
+
+# Retry policy for transient failures: statuses retried, attempts, base backoff.
+RETRYABLE_STATUSES = {429, 500, 502, 503, 504}
+MAX_RETRIES = 2
+RETRY_BASE_DELAY = 1.0
+
+# Cap on a single downloaded image; guards memory against oversized files
+# from arbitrary general-topic hosts.
+MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024  # 20 MB
+
+# Cap on a local reference image sent inline (server rejects > 5MB with 413;
+# checking locally avoids burning a request).
+MAX_LOCAL_IMAGE_BYTES = 5 * 1024 * 1024
+
+
+class APICallError(Exception):
+    """One topic's API call failed after retries; other topics may still work."""
 
 
 def image_input(ref):
@@ -63,6 +83,12 @@ def image_input(ref):
     p = Path(ref)
     if not p.is_file():
         sys.exit(f"Image reference not found: {ref}")
+    size = p.stat().st_size
+    if size > MAX_LOCAL_IMAGE_BYTES:
+        sys.exit(
+            f"Image {ref} is {size / 1048576:.1f}MB; the API accepts at most 5MB "
+            "inline — pass a public https URL instead."
+        )
     data = base64.b64encode(p.read_bytes()).decode("ascii")
     return {"type": "image", "data": data}
 
@@ -84,38 +110,59 @@ def build_payload(args, topic):
 
 
 def call_api(payload, api_key):
+    """POST to the API with retries on transient failures.
+
+    Raises APICallError on a definitive failure so the caller can decide
+    whether to continue with other topics (a 403 on one topic must not
+    discard results already fetched for another).
+    """
     body = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        API_URL,
-        data=body,
-        headers={
-            "x-api-key": api_key,
-            "Content-Type": "application/json",
-        },
-        method="POST",
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=60) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        hint = ERROR_HINTS.get(e.code, "")
+    last_error = None
+    for attempt in range(MAX_RETRIES + 1):
+        req = urllib.request.Request(
+            API_URL,
+            data=body,
+            headers={
+                "x-api-key": api_key,
+                "Content-Type": "application/json",
+            },
+            method="POST",
+        )
         try:
-            detail = e.read().decode("utf-8")
-        except Exception:
-            detail = ""
-        sys.exit(f"API error {e.code}: {hint} {detail}".strip())
-    except urllib.error.URLError as e:
-        sys.exit(f"Network error reaching the image search API: {e.reason}")
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            hint = ERROR_HINTS.get(e.code, "")
+            try:
+                detail = e.read().decode("utf-8")
+            except Exception:
+                detail = ""
+            last_error = f"API error {e.code}: {hint} {detail}".strip()
+            if e.code not in RETRYABLE_STATUSES:
+                break
+        except urllib.error.URLError as e:
+            last_error = f"Network error reaching the image search API: {e.reason}"
+        if attempt < MAX_RETRIES:
+            time.sleep(RETRY_BASE_DELAY * (2 ** attempt))
+    raise APICallError(last_error)
 
 
 def download_image(url, dest_stem):
-    """Download an image URL to dest_stem.<ext>. Returns the path or None."""
-    if not url:
+    """Download an image URL to dest_stem.<ext>. Returns the path or None.
+
+    Only http(s) URLs are fetched (the URL comes from the API response, so a
+    file:// or other scheme must never be followed), and reads are capped at
+    MAX_DOWNLOAD_BYTES so an oversized file from an arbitrary host cannot
+    exhaust memory.
+    """
+    if not url or not url.startswith(("http://", "https://")):
         return None
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "ui-design-search/1.0"})
         with urllib.request.urlopen(req, timeout=60) as resp:
-            data = resp.read()
+            data = resp.read(MAX_DOWNLOAD_BYTES + 1)
+            if len(data) > MAX_DOWNLOAD_BYTES:
+                return None  # oversized; caller falls back to the thumbnail
             ctype = resp.headers.get("Content-Type", "")
         ext = mimetypes.guess_extension(ctype.split(";")[0].strip()) or ".jpg"
         if ext == ".jpe":
@@ -125,6 +172,16 @@ def download_image(url, dest_stem):
         return str(path)
     except Exception:
         return None
+
+
+def safe_topic_slug(topic):
+    """Filesystem-safe slug for a topic used in output filenames.
+
+    --topics is user input that gets interpolated into paths; strip anything
+    that could escape the output directory (e.g. "../evil").
+    """
+    slug = re.sub(r"[^A-Za-z0-9_-]", "_", topic)
+    return slug or "topic"
 
 
 def collect_topic(topic, args, api_key):
@@ -141,10 +198,11 @@ def fetch_one_image(topic, i, r, out):
     # Primary image is `url` (full-res). For general, the foreign-host image
     # may be huge or hotlink-blocked, so fall back to the octen-proxied
     # `thumbnail` when the original download fails.
-    img_path = download_image(r.get("url"), out / f"{topic}_{i}")
+    slug = safe_topic_slug(topic)
+    img_path = download_image(r.get("url"), out / f"{slug}_{i}")
     used_thumbnail = False
     if img_path is None and r.get("thumbnail"):
-        img_path = download_image(r.get("thumbnail"), out / f"{topic}_{i}")
+        img_path = download_image(r.get("thumbnail"), out / f"{slug}_{i}")
         used_thumbnail = img_path is not None
     return img_path, used_thumbnail
 
@@ -170,7 +228,7 @@ def process_topic(topic, results, args, out):
         snippet = r.get("html_snippet")
         snippet_path = None
         if snippet:
-            snippet_path = str(out / f"{topic}_snippet_{i}.html")
+            snippet_path = str(out / f"{safe_topic_slug(topic)}_snippet_{i}.html")
             Path(snippet_path).write_text(snippet, encoding="utf-8")
 
         refs.append({
@@ -228,7 +286,7 @@ def main():
         "--image",
         help="Reference image for image-based search: local path (sent as base64) or public URL.",
     )
-    parser.add_argument("--count", type=int, default=5, help="Number of results PER TOPIC, 1-100 (default 5).")
+    parser.add_argument("--count", type=int, default=5, help="Number of results PER TOPIC, 1-10 (default 5; the endpoint caps count at 10).")
     parser.add_argument(
         "--topics", nargs="+", default=DEFAULT_TOPICS,
         help="Topics to query (default: design general). design = curated UI corpus; general = broad web images.",
@@ -261,11 +319,23 @@ def main():
 
     octen_refs = []
     per_topic = {}
+    topic_errors = {}
     for topic in args.topics:
-        raw = collect_topic(topic, args, api_key)
+        try:
+            raw = collect_topic(topic, args, api_key)
+        except APICallError as e:
+            # One topic failing (e.g. 403 no beta access) must not discard
+            # results already fetched for other topics.
+            topic_errors[topic] = str(e)
+            print(f"WARNING: topic '{topic}' failed: {e}", file=sys.stderr)
+            per_topic[topic] = []
+            continue
         refs = process_topic(topic, raw, args, out)
         per_topic[topic] = refs
         octen_refs.extend(refs)
+
+    if topic_errors and len(topic_errors) == len(args.topics):
+        sys.exit("All topics failed; see warnings above.")
 
     print(f"Results: {len(octen_refs)} total "
           f"({', '.join(f'{t}={len(per_topic.get(t, []))}' for t in args.topics)})")
@@ -277,7 +347,8 @@ def main():
         )
         (out / "results.json").write_text(
             json.dumps({"query": args.query, "topics": args.topics, "octen_refs": []},
-                       ensure_ascii=False, indent=2)
+                       ensure_ascii=False, indent=2),
+            encoding="utf-8",
         )
         return
 
@@ -294,7 +365,8 @@ def main():
 
     (out / "results.json").write_text(
         json.dumps({"query": args.query, "topics": args.topics, "octen_refs": octen_refs},
-                   ensure_ascii=False, indent=2)
+                   ensure_ascii=False, indent=2),
+        encoding="utf-8",
     )
     print(f"Manifest: {out / 'results.json'}  (key: octen_refs)")
 
