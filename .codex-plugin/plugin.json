@@ -1,0 +1,29 @@
+{
+  "name": "octen",
+  "version": "0.1.0",
+  "description": "Real-time web search, broad multi-angle search, URL extraction, and UI design references for coding agents, powered by Octen.",
+  "author": {
+    "name": "Octen Team",
+    "email": "support@octen.ai",
+    "url": "https://octen.ai"
+  },
+  "homepage": "https://octen.ai",
+  "repository": "https://github.com/Octen-Team/octen-skills",
+  "license": "MIT",
+  "keywords": ["web search", "search", "extract", "ui design", "research", "octen"],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Octen",
+    "shortDescription": "Live web search, page extraction, and UI design references",
+    "longDescription": "Gives the agent live web information through Octen: real-time web search with highlights and filters, broad multi-angle search for research and comparisons, clean content extraction from URLs, and (invite-only beta) image search, video search, and curated UI design references with style tokens and HTML/CSS snippets. Requires an OCTEN_API_KEY from https://octen.ai; the beta skills additionally require beta access.",
+    "developerName": "Octen Team",
+    "category": "Productivity",
+    "websiteURL": "https://octen.ai",
+    "defaultPrompt": [
+      "Use Octen to look up the latest news on this topic.",
+      "Use Octen to compare the main options and cite sources.",
+      "Use Octen to read this URL and summarize it."
+    ]
+  }
+}

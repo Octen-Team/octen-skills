@@ -86,6 +86,10 @@ mkdir -p <skills-dir> && curl -sL https://github.com/Octen-Team/octen-skills/arc
 
 Common `<skills-dir>` values: `~/.claude/skills`, `~/.cursor/skills`, `~/.codex/skills`, `~/.openclaw/skills`, `~/.hermes/skills` (use a project-local `.<agent>/skills` for project scope). Re-run to update.
 
+### Codex plugin (marketplace install)
+
+This repo also ships as a [Codex plugin](https://developers.openai.com/codex/plugins): `.codex-plugin/plugin.json` bundles all six skills together with the `octen-mcp` server (`.mcp.json`), and `.agents/plugins/marketplace.json` exposes the repo as a plugin marketplace. Add the repo as a marketplace source in Codex, then install the **Octen** plugin from `codex plugins`. Set `OCTEN_API_KEY` in your environment before first use (see [Prerequisites](#prerequisites)); the image/video/design skills additionally require invite-only beta access.
+
 ## Prerequisites
 
 Get an Octen API key at https://octen.ai
