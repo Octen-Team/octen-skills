@@ -1,8 +1,11 @@
 """Regression tests for skills/octen-design/scripts/search.py.
 
 Runs the real script (imported as a module) against a local mock HTTP server.
-No mocks of the code under test — only the remote API is simulated.
-Stdlib only, no network access:  python3 tests/test_search.py
+No mocks of the code under test — only the remote API is simulated (plus
+`time.sleep`, so retry backoff doesn't stall the suite). Stdlib only, no
+external network access (the mock server binds loopback only):
+
+    python3 tests/test_search.py
 """
 
 import base64
@@ -97,6 +100,7 @@ class SearchScriptTest(unittest.TestCase):
 
         self._old_api_url = search.API_URL
         search.API_URL = f"{self.base}/api"
+        self._old_key = os.environ.get("OCTEN_API_KEY")
         os.environ["OCTEN_API_KEY"] = "test-key"
 
         self.sleeps = []
@@ -108,6 +112,10 @@ class SearchScriptTest(unittest.TestCase):
     def tearDown(self):
         search.API_URL = self._old_api_url
         search.time = self._old_time
+        if self._old_key is None:
+            os.environ.pop("OCTEN_API_KEY", None)
+        else:
+            os.environ["OCTEN_API_KEY"] = self._old_key
         self.server.shutdown()
         self.server.server_close()
         shutil.rmtree(self.out, ignore_errors=True)
@@ -185,7 +193,10 @@ class SearchScriptTest(unittest.TestCase):
     # ---- partial / total failure semantics ----
 
     def test_all_failed_duplicate_topics_exit_nonzero(self):
-        """--topics general general with every call 403 must NOT exit 0 with 'NO RESULTS'."""
+        """--topics general general with a 403 must NOT exit 0 with 'NO RESULTS'.
+
+        Also pins topic dedupe (one API call, not two) and 4xx-not-retried.
+        """
         self.server.api_script = [
             {"status": 403, "json": {"msg": "no beta access"}},
             {"status": 403, "json": {"msg": "no beta access"}},
@@ -195,6 +206,8 @@ class SearchScriptTest(unittest.TestCase):
         self.assertNotEqual(exc.code, 0)
         self.assertNotIn("NO RESULTS", out,
                          "a total auth failure must not be presented as an empty query")
+        self.assertEqual(len(self.server.requests), 1,
+                         "duplicate topics must be deduped and a 403 must not be retried")
 
     def test_partial_failure_recorded_in_manifest_and_report(self):
         self.server.api_script = [
@@ -234,9 +247,8 @@ class SearchScriptTest(unittest.TestCase):
     # ---- download / snippet resilience ----
 
     def test_download_failure_reason_recorded(self):
+        # url points at a 404 and there is no thumbnail to fall back to
         self.server.api_script = [self.good_response(1, url=f"{self.base}/img/missing.png")]
-        # no thumbnail: remove it if present, and point url at a 404
-        self.server.api_script[0]["json"]["data"]["results"][0].pop("thumbnail", None)
         exc, out, err = self.run_main(["dashboard", "--topics", "design"])
         self.assertIsNone(exc)
         ref = self.manifest()["octen_refs"][0]
@@ -257,7 +269,7 @@ class SearchScriptTest(unittest.TestCase):
         listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         listener.bind(("127.0.0.1", 0))
         listener.listen(1)
-        listener.settimeout(3)
+        listener.settimeout(1)
         ftp_port = listener.getsockname()[1]
         connected = threading.Event()
 
@@ -272,10 +284,10 @@ class SearchScriptTest(unittest.TestCase):
         t = threading.Thread(target=accept, daemon=True)
         t.start()
         self.server.redirect_targets["/redir/ftp"] = f"ftp://127.0.0.1:{ftp_port}/x.png"
-        result = search.download_image(f"{self.base}/redir/ftp", Path(self.out) / "x")
-        path = result[0] if isinstance(result, tuple) else result
+        path, reason = search.download_image(f"{self.base}/redir/ftp", Path(self.out) / "x")
         self.assertIsNone(path)
-        t.join(4)
+        self.assertTrue(reason)
+        t.join(2)
         listener.close()
         self.assertFalse(connected.is_set(),
                          "a redirect to a non-http(s) scheme must not be followed")
@@ -321,10 +333,116 @@ class SearchScriptTest(unittest.TestCase):
         self.assertEqual(len(inputs), 1)
         self.assertEqual(inputs[0]["type"], "image")
 
+    # ---- success contract ----
+
+    def test_happy_path_saves_image_and_snippet(self):
+        """The deliverable: a usable image file + snippet file + clean manifest."""
+        self.server.api_script = [self.good_response(1, summary="style: dark")]
+        exc, out, err = self.run_main(["dashboard", "--topics", "design"])
+        self.assertIsNone(exc)
+        m = self.manifest()
+        self.assertFalse(m["partial"])
+        ref = m["octen_refs"][0]
+        self.assertIsNone(ref["image_error"])
+        self.assertIsNone(ref["snippet_error"])
+        self.assertEqual(Path(ref["local_image"]).read_bytes(), TINY_PNG)
+        self.assertEqual(Path(ref["html_snippet_file"]).read_text(encoding="utf-8"),
+                         "<div>x</div>")
+        self.assertEqual(ref["summary"], "style: dark")
+        self.assertFalse((Path(self.out) / "results.json.tmp").exists(),
+                         "the atomic-write tmp file must not be left behind")
+
+    def test_thumbnail_fallback_used_when_primary_fails(self):
+        self.server.api_script = [self.good_response(
+            1, url=f"{self.base}/img/missing.png", thumbnail=f"{self.base}/img/ok.png")]
+        exc, out, err = self.run_main(["dashboard", "--topics", "general"])
+        self.assertIsNone(exc)
+        ref = self.manifest()["octen_refs"][0]
+        self.assertTrue(ref["local_image_is_thumbnail"])
+        self.assertEqual(Path(ref["local_image"]).read_bytes(), TINY_PNG)
+        self.assertIsNone(ref["image_error"], "an image WAS saved; image_error must be clean")
+
+    def test_zero_hits_exits_zero_with_manifest(self):
+        """All topics succeed with zero hits: NO RESULTS + exit 0, not a failure."""
+        self.server.api_script = [
+            {"status": 200, "json": {"code": 0, "data": {"results": []}}},
+            {"status": 200, "json": {"code": 0, "data": {"results": []}}},
+        ]
+        exc, out, err = self.run_main(["dashboard", "--topics", "design", "general"])
+        self.assertIsNone(exc)
+        self.assertIn("NO RESULTS", out)
+        m = self.manifest()
+        self.assertFalse(m["partial"])
+        self.assertEqual(m["octen_refs"], [])
+
+    def test_data_null_is_zero_hits_not_a_failure(self):
+        """The beta envelope is loose; a 200 with data: null is zero hits, not a contract error."""
+        self.server.api_script = [{"status": 200, "json": {"code": 0, "data": None}}]
+        exc, out, err = self.run_main(["dashboard", "--topics", "design"])
+        self.assertIsNone(exc)
+        self.assertIn("NO RESULTS", out)
+        self.assertFalse(self.manifest()["partial"])
+
+    def test_retry_after_header_is_honored(self):
+        self.server.api_script = [
+            {"status": 429, "json": {"msg": "slow down"}, "headers": {"Retry-After": "7"}},
+            self.good_response(1),
+        ]
+        exc, out, err = self.run_main(["dashboard", "--topics", "design"])
+        self.assertIsNone(exc)
+        self.assertEqual(self.sleeps, [7.0])
+
+    # ---- malformed API data must degrade, not crash ----
+
+    def test_malformed_image_url_is_recorded_not_a_crash(self):
+        self.server.api_script = [self.good_response(1, url="http://[bad-ipv6")]
+        exc, out, err = self.run_main(["dashboard", "--topics", "design"])
+        self.assertIsNone(exc, "a malformed URL from the API must not crash the run")
+        ref = self.manifest()["octen_refs"][0]
+        self.assertIsNone(ref["local_image"])
+        self.assertTrue(ref["image_error"])
+
+    def test_lone_surrogate_snippet_survives(self):
+        """json.loads can produce lone surrogates; writing the snippet must not crash."""
+        step = self.good_response(1)
+        step["json"]["data"]["results"][0]["html_snippet"] = "<div>\ud83d</div>"
+        self.server.api_script = [step]
+        exc, out, err = self.run_main(["dashboard", "--topics", "design"])
+        self.assertIsNone(exc, "an unencodable html_snippet must not crash the run")
+        ref = self.manifest()["octen_refs"][0]
+        self.assertTrue(ref["html_snippet_file"], "the snippet should still be written (lossily)")
+        self.assertIn("<div>", Path(ref["html_snippet_file"]).read_text(encoding="utf-8"))
+
+    def test_results_wrong_type_is_topic_error(self):
+        self.server.api_script = [
+            {"status": 200, "json": {"code": 0, "data": {"results": "nope"}}}]
+        exc, out, err = self.run_main(["dashboard", "--topics", "design"])
+        self.assertIsNotNone(exc, "a non-array results field is a contract error, not zero hits")
+        self.assertIn("design", self.manifest()["topic_errors"])
+
+    def test_error_detail_is_truncated(self):
+        """A huge server error body must not be replayed into stderr and the manifest."""
+        self.server.api_script = [{"status": 403, "json": {"msg": "x" * 20000}}]
+        exc, out, err = self.run_main(["dashboard", "--topics", "design"])
+        self.assertIsNotNone(exc)
+        self.assertLess(len(self.manifest()["topic_errors"]["design"]), 800)
+
     # ---- filename safety ----
 
     def test_distinct_topics_do_not_collide_after_slugify(self):
         self.assertNotEqual(search.safe_topic_slug("a b"), search.safe_topic_slug("a_b"))
+
+    def test_topic_slug_cannot_escape_out_dir(self):
+        for topic in ("../evil", "..", "a/b", ".hidden", "..\\win"):
+            slug = search.safe_topic_slug(topic)
+            self.assertNotIn("/", slug, topic)
+            self.assertNotIn("\\", slug, topic)
+            self.assertFalse(slug.startswith("."), topic)
+
+    def test_case_variant_topics_do_not_collide_on_insensitive_filesystems(self):
+        a = search.safe_topic_slug("design").lower()
+        b = search.safe_topic_slug("Design").lower()
+        self.assertNotEqual(a, b, "Design and design must not map to the same file on APFS/NTFS")
 
 
 if __name__ == "__main__":

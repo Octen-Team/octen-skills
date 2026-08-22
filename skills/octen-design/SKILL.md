@@ -210,9 +210,10 @@ To combine signals, run the script twice — once with text, once with `--image`
 ## Notes and constraints
 
 - `--count` defaults to 5 and is **per topic**, so you get up to `2 × count`
-  images total (design + general). The API caps `count` at 10. Keep it modest
-  (≈3–5); each design result pulls an image plus a snippet, so large counts
-  bloat context and cost.
+  images total (design + general). `count` must be 1–10 (the API's documented
+  range; the script rejects anything else before calling the API). Keep it
+  modest (≈3–5); each design result pulls an image plus a snippet, so large
+  counts bloat context and cost.
 - `html_snippet` is capped by `--max-snippet-tokens` (default 5000). For a complex
   component that looks truncated, rerun with a higher value.
 - Results come back ranked within each topic; the first results are the most

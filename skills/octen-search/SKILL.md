@@ -158,8 +158,8 @@ POST https://api.octen.ai/search
 | `data.results[].time_last_crawled` | string? | Last crawl time, ISO 8601 |
 | `data.results[].favicon` | string? | Favicon URL of the result site |
 | `data.results[].cover_image` | object? | Page cover image `{url, description}` (when `include_images` is true and the page has one) |
-| `data.results[].images[]` | array | In-body images of the page as `{url, description}`, in order of appearance (when `include_images` is true) |
-| `data.results[].videos[]` | array | In-body videos of the page (when `include_videos` is true) |
+| `data.results[].images[]` | array? | In-body images of the page as `{url, description}`, in order of appearance (when `include_images` is true) |
+| `data.results[].videos[]` | array? | In-body videos of the page (when `include_videos` is true) |
 | `meta.usage.num_search_queries` | integer | Number of search queries executed |
 | `meta.usage.full_content_tokens` | integer | Total tokens returned in full_content |
 | `meta.latency` | number | Response time in milliseconds |

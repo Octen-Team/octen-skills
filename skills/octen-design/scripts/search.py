@@ -80,13 +80,17 @@ MAX_LOCAL_IMAGE_BYTES = 5 * 1024 * 1024
 
 
 class APICallError(Exception):
-    """One topic's API call failed definitively (retries exhausted, or a
-    non-retryable error); other topics may still work."""
+    """One topic's API call failed definitively (retries exhausted, a
+    non-retryable error, or an envelope/contract mismatch); other topics may
+    still work."""
 
 
 def image_input(ref):
     """Turn a local path or URL into an inputs[] image entry."""
-    scheme = urllib.parse.urlsplit(ref).scheme.lower()
+    try:
+        scheme = urllib.parse.urlsplit(ref).scheme.lower()
+    except ValueError:
+        scheme = ""  # unparseable as a URL; treat as a local path below
     if scheme in ("http", "https"):
         return {"type": "image", "url": ref}
     p = Path(ref)
@@ -159,7 +163,11 @@ def call_api(payload, api_key):
                 detail = e.read().decode("utf-8", "replace").strip()
             except Exception:
                 detail = ""
-            last_error = f"API error {e.code}: {hint} {detail or '(no response body)'}".strip()
+            # Cap the server body: it is replayed on every retry warning and
+            # persisted into results.json.
+            if len(detail) > 500:
+                detail = detail[:500] + "…(truncated)"
+            last_error = f"API error {e.code}: {hint} {detail or '(no readable response body)'}".strip()
             if e.code not in RETRYABLE_STATUSES:
                 break
             retry_after = e.headers.get("Retry-After") if e.headers else None
@@ -171,7 +179,9 @@ def call_api(payload, api_key):
         except (urllib.error.URLError, http.client.HTTPException, OSError) as e:
             # Read-phase failures (timeout, reset, truncated body) surface as
             # raw OSError/HTTPException rather than URLError; all transient.
-            last_error = f"Network error reaching the image search API: {getattr(e, 'reason', e)}"
+            # Bare OSErrors stringify to "", so always include the class name.
+            last_error = (f"Network error reaching the image search API: "
+                          f"{e.__class__.__name__}: {getattr(e, 'reason', e)}")
         if attempt < MAX_RETRIES:
             delay = max(RETRY_BASE_DELAY * (2 ** attempt), server_delay or 0)
             print(
@@ -189,6 +199,10 @@ class _HttpOnlyRedirectHandler(urllib.request.HTTPRedirectHandler):
 
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         if urllib.parse.urlsplit(newurl).scheme.lower() not in ("http", "https"):
+            # The stdlib drains/closes fp only after redirect_request returns;
+            # raising would otherwise leak the connection.
+            fp.read()
+            fp.close()
             raise urllib.error.URLError(f"redirect to non-http(s) URL blocked: {newurl}")
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
@@ -207,7 +221,10 @@ def download_image(url, dest_stem):
     """
     if not url:
         return None, "no image URL in the API response"
-    scheme = urllib.parse.urlsplit(url).scheme.lower()
+    try:
+        scheme = urllib.parse.urlsplit(url).scheme.lower()
+    except ValueError as e:
+        return None, f"unparseable image URL: {e}"
     if scheme not in ("http", "https"):
         return None, f"blocked non-http(s) URL scheme: {scheme or '(none)'}"
     try:
@@ -234,26 +251,41 @@ def safe_topic_slug(topic):
     """Filesystem-safe slug for a topic used in output filenames.
 
     --topics is user input that gets interpolated into paths; strip anything
-    that could escape the output directory (e.g. "../evil"). Sanitized slugs
-    get a short hash suffix so distinct topics that sanitize to the same text
-    ("a b" vs "a_b") cannot overwrite each other's files.
+    that could escape the output directory (e.g. "../evil"). Sanitized or
+    non-lowercase slugs get a short hash suffix so distinct topics cannot
+    collide on the same output files — whether by sanitizing to the same text
+    ("a b" vs "a_b") or by case-folding on case-insensitive filesystems
+    ("Design" vs "design" on APFS/NTFS).
     """
     slug = re.sub(r"[^A-Za-z0-9_-]", "_", topic) or "topic"
-    if slug != topic:
-        slug += "-" + hashlib.md5(topic.encode("utf-8")).hexdigest()[:6]
+    if slug != topic or slug != slug.lower():
+        slug += "-" + hashlib.md5(topic.encode("utf-8"), usedforsecurity=False).hexdigest()[:6]
     return slug
 
 
 def collect_topic(topic, args, api_key):
     """Query one topic and return its raw image results (list of dicts)."""
     resp = call_api(build_payload(args, topic), api_key)
-    if not isinstance(resp, dict) or not isinstance(resp.get("data"), dict):
-        got = sorted(resp) if isinstance(resp, dict) else type(resp).__name__
+    # The beta envelope is loose (code/msg may be absent, data may be null on
+    # zero hits) — tolerate that, but a missing `data` key or wrong-typed
+    # data/results is a contract problem, NOT an empty result set.
+    if not isinstance(resp, dict) or "data" not in resp:
+        got = f"top-level keys {sorted(resp)}" if isinstance(resp, dict) else type(resp).__name__
+        raise APICallError(
+            f"Unexpected response envelope from the image search API (no 'data' key; got: {got})"
+        )
+    data = resp["data"] or {}
+    if not isinstance(data, dict):
         raise APICallError(
             "Unexpected response envelope from the image search API "
-            f"(no 'data' object; got: {got})"
+            f"(data is {type(data).__name__}, expected an object)"
         )
-    results = resp["data"].get("results") or []
+    results = data.get("results") or []
+    if not isinstance(results, list):
+        raise APICallError(
+            "Unexpected response envelope from the image search API "
+            f"(results is {type(results).__name__}, expected an array)"
+        )
     # The image-search endpoint returns image hits with no `type` field; keep
     # any entry that has an image URL (do NOT filter on type == "image").
     return [r for r in results if isinstance(r, dict) and r.get("url")]
@@ -278,6 +310,9 @@ def fetch_one_image(topic, i, r, out):
             used_thumbnail = img_path is not None
             if img_path is None:
                 error = f"original: {primary_error}; thumbnail: {thumb_error}"
+            else:
+                print(f"NOTE: [{topic}:{i}] full-res download failed "
+                      f"({primary_error}); saved the thumbnail instead", file=sys.stderr)
         else:
             error = primary_error
     if error:
@@ -312,8 +347,11 @@ def process_topic(topic, results, args, out):
             else:
                 snippet_path = str(out / f"{safe_topic_slug(topic)}_snippet_{i}.html")
                 try:
-                    Path(snippet_path).write_text(snippet, encoding="utf-8")
-                except OSError as e:
+                    # errors="replace": json.loads can hand us lone surrogates
+                    # (\ud83d-style escapes) that utf-8 cannot encode; a lossy
+                    # write beats losing the snippet (or the whole run).
+                    Path(snippet_path).write_text(snippet, encoding="utf-8", errors="replace")
+                except (OSError, ValueError) as e:
                     snippet_path = None
                     snippet_error = f"cannot write snippet locally: {e}"
             if snippet_error:
@@ -369,7 +407,8 @@ def print_topic_report(topic, refs, heading, error=None):
 
 def write_manifest(out, query, topics, octen_refs, topic_errors):
     """Write results.json atomically: a crash mid-write must not leave a
-    truncated manifest, and a failed run must not leave a stale one."""
+    truncated manifest, and a run that reaches the API but fails must not
+    leave a stale one."""
     manifest = {
         "query": query,
         "topics": topics,
@@ -379,11 +418,16 @@ def write_manifest(out, query, topics, octen_refs, topic_errors):
     }
     tmp = out / "results.json.tmp"
     try:
+        # errors="replace": API strings may contain lone surrogates.
         tmp.write_text(json.dumps(manifest, ensure_ascii=False, indent=2),
-                       encoding="utf-8")
+                       encoding="utf-8", errors="replace")
         os.replace(tmp, out / "results.json")
     except OSError as e:
-        sys.exit(f"Cannot write {out / 'results.json'}: {e}")
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+        sys.exit(f"Cannot write the results manifest: {e}")
 
 
 def count_arg(value):
@@ -444,7 +488,9 @@ def main():
     # other's files; keep the first occurrence of each.
     topics = list(dict.fromkeys(args.topics))
     if len(topics) < len(args.topics):
-        print("WARNING: duplicate --topics values ignored", file=sys.stderr)
+        dropped = sorted({t for t in args.topics if args.topics.count(t) > 1})
+        print(f"WARNING: duplicate --topics values ignored: {', '.join(dropped)}",
+              file=sys.stderr)
 
     print(f"Query  : {args.query or '[image search]'}")
     print(f"Topics : {', '.join(topics)}")
