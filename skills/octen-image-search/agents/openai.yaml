@@ -1,0 +1,4 @@
+interface:
+  display_name: "Image Search (Beta)"
+  short_description: "Find web images by text or a reference image"
+  default_prompt: "Find images of this and show me the best matches with sources."

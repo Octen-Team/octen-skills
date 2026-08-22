@@ -1,0 +1,4 @@
+interface:
+  display_name: "UI Design References (Beta)"
+  short_description: "Real-world design references before building UI"
+  default_prompt: "Find reference designs for this component before implementing it."

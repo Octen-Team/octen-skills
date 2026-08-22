@@ -1,0 +1,4 @@
+interface:
+  display_name: "URL Extract"
+  short_description: "Read web pages as clean, LLM-ready markdown"
+  default_prompt: "Read this URL and summarize the key points."
