@@ -1,6 +1,6 @@
 ---
 name: octen-web-search
-description: >
+description: >-
   Use Octen's search tools for anything that needs live information from the web.
   Make sure to use this skill whenever the user wants to look something up, check
   current or recent information, find sources, compare products / vendors /

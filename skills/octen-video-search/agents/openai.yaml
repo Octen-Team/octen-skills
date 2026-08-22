@@ -1,0 +1,4 @@
+interface:
+  display_name: "Video Search (Beta)"
+  short_description: "Find web videos with the matched segment timestamps"
+  default_prompt: "Find videos about this topic and point me to the relevant moments."

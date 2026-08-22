@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web Search Router"
+  short_description: "Picks the right Octen search tool for the task"
+  default_prompt: "Look this up on the web and give me a sourced answer."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Web Search"
+  short_description: "Real-time web search with highlights and filters"
+  default_prompt: "Search the web for the latest news on this topic and cite sources."
