@@ -121,8 +121,8 @@ POST https://api.octen.ai/search
 | `format` | string | No | `text` | Output format for highlights: `text` or `markdown` |
 | `safesearch` | string | No | `strict` | Adult content filter: `off` or `strict` |
 | `full_content` | object | No | `{"enable": false}` | Full content options (see below) |
-| `include_images` | boolean | No | `false` | Return image URLs found per result |
-| `include_videos` | boolean | No | `false` | Return video URLs found per result |
+| `include_images` | boolean | No | `false` | Return the page's cover image and in-body images per result (see Response Fields). For searching *for* images, use the octen-image-search skill instead |
+| `include_videos` | boolean | No | `false` | Return in-body video URLs per result (see Response Fields). For searching *for* videos, use the octen-video-search skill instead |
 
 ### Highlight Options
 
@@ -156,6 +156,10 @@ POST https://api.octen.ai/search
 | `data.results[].authors` | string? | Website name or author |
 | `data.results[].time_published` | string? | Publish time, ISO 8601 |
 | `data.results[].time_last_crawled` | string? | Last crawl time, ISO 8601 |
+| `data.results[].favicon` | string? | Favicon URL of the result site |
+| `data.results[].cover_image` | object? | Page cover image `{url, description}` (when `include_images` is true and the page has one) |
+| `data.results[].images[]` | array | In-body images of the page as `{url, description}`, in order of appearance (when `include_images` is true) |
+| `data.results[].videos[]` | array | In-body videos of the page (when `include_videos` is true) |
 | `meta.usage.num_search_queries` | integer | Number of search queries executed |
 | `meta.usage.full_content_tokens` | integer | Total tokens returned in full_content |
 | `meta.latency` | number | Response time in milliseconds |
