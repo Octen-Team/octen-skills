@@ -19,6 +19,10 @@
     "developerName": "Octen Team",
     "category": "Productivity",
     "websiteURL": "https://octen.ai",
+    "privacyPolicyURL": "https://octen.ai/privacy-policy",
+    "termsOfServiceURL": "https://octen.ai/terms-of-service",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
     "defaultPrompt": [
       "Use Octen to look up the latest news on this topic.",
       "Use Octen to compare the main options and cite sources.",
