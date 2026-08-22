@@ -14,7 +14,7 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Octen",
-    "shortDescription": "Live web search, page extraction, and UI design references",
+    "shortDescription": "Live web search & extraction",
     "longDescription": "Gives the agent live web information through Octen: real-time web search with highlights and filters, broad multi-angle search for research and comparisons, clean content extraction from URLs, and (invite-only beta) image search, video search, and curated UI design references with style tokens and HTML/CSS snippets. Requires an OCTEN_API_KEY from https://octen.ai; the beta skills additionally require beta access.",
     "developerName": "Octen Team",
     "category": "Productivity",
