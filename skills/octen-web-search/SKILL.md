@@ -30,13 +30,15 @@ The Octen tools ship as an MCP server (`octen-mcp`) and in many clients are
 **deferred** — not resident until you search for them. Load them **once** and they
 stay available for the rest of the session:
 
-1. Call your client's tool-discovery mechanism (in Claude Code / Claude.ai:
-   `tool_search`) with a query like **`octen web search extract broad_search`**.
+1. If your client defers MCP tools behind a tool-discovery mechanism (for
+   example `tool_search` in Claude Code / Claude.ai), call it once with a query
+   like **`octen web search extract broad_search`**. If the `octen:*` tools are
+   already resident — or your client doesn't defer tools — skip this step.
 2. Use the loaded `octen:*` tools for the rest of the session — no need to reload.
 
-> **Tip (zero per-session cost):** to skip the discovery step entirely, the operator
-> can set `"alwaysLoad": true` on the `octen` MCP server in `.mcp.json` (Claude Code
-> v2.1.121+) — the tools are then resident from turn 1. See the octen-mcp README.
+> **Tip (zero per-session cost; Claude Code v2.1.121+ only):** the operator can set
+> `"alwaysLoad": true` on the `octen` MCP server in `.mcp.json` — the tools are then
+> resident from turn 1. See the octen-mcp README.
 
 **No Octen MCP server?** Either install it (https://github.com/Octen-Team/octen-mcp)
 or call the HTTP API directly with `curl` — the sibling skills **octen-search**,

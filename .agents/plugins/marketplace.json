@@ -1,0 +1,20 @@
+{
+  "name": "octen-plugins",
+  "interface": {
+    "displayName": "Octen Plugins"
+  },
+  "plugins": [
+    {
+      "name": "octen",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

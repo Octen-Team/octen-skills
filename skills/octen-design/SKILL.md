@@ -2,7 +2,7 @@
 name: octen-design
 description: >-
   Pull real-world UI design references before building any frontend. Use this skill
-  whenever implementing, restyling, or improving any web UI in Claude Code — pages,
+  whenever implementing, restyling, or improving any web UI — pages,
   components, layouts, dashboards, forms, cards, navs, modals, marketing sections —
   even when the user does not explicitly ask for a "design reference." Phrases like
   "build me a settings page," "make a pricing card," "this looks plain, improve it,"
