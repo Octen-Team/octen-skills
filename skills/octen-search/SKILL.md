@@ -109,8 +109,8 @@ POST https://api.octen.ai/search
 | `query` | string | **Yes** | - | Search query (max 500 chars) |
 | `topic` | string | No | `general` | Search vertical: `general` or `news` |
 | `count` | integer | No | `5` | Number of results (1–100) |
-| `include_domains` | string[] | No | - | Only include results from these domains (max 1000 domains, each max 30 chars) |
-| `exclude_domains` | string[] | No | - | Exclude results from these domains (max 150 domains, each max 30 chars) |
+| `include_domains` | string[] | No | - | Only include results from these domains (max 1200 domains, each max 60 chars) |
+| `exclude_domains` | string[] | No | - | Exclude results from these domains (max 1200 domains, each max 60 chars) |
 | `include_text` | string[] | No | - | Strings that must appear in result page text (max 5 items, each max 30 chars) |
 | `exclude_text` | string[] | No | - | Strings that must not appear in result page text (max 5 items, each max 30 chars) |
 | `language` | string[] | No | `[]` | Filter results to these languages, as ISO 639-1 codes (e.g. `["en", "ja"]`). Supported: `ar`, `de`, `en`, `es`, `fr`, `hi`, `id`, `it`, `ja`, `ko`, `nl`, `pl`, `pt`, `ru`, `th`, `tr`, `vi`, `zh`. Empty = no language filter. See https://localizely.com/iso-639-1-list/ |
