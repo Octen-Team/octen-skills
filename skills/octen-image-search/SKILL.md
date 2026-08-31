@@ -80,11 +80,13 @@ image, not both (a second input is rejected with 400). For a local image, send
 | `count` | integer | No | `5` | Number of results (1–10) |
 | `include_domains` | string[] | No | - | Only include images from these domains |
 | `exclude_domains` | string[] | No | - | Exclude images from these domains |
-| `time_range` | string | No | - | Relative time window: `day`, `week`, `month`, `year` (or `d`, `w`, `m`, `y`) |
-| `start_time` | string | No | - | Start time filter, ISO 8601 |
-| `end_time` | string | No | - | End time filter, ISO 8601 |
 | `safesearch` | string | No | `strict` | Adult content filter: `off` or `strict` |
-| `html_snippet` | object | No | `{"enable": false}` | `{enable, max_tokens (def 5000)}` — design-oriented HTML/CSS snippet (mainly useful with `topic=design`) |
+| `html_snippet` | object | No | `{"enable": false}` | `{enable, max_tokens (def 5000, 100–100000)}` — design-oriented HTML/CSS snippet (mainly useful with `topic=design`) |
+
+There are **no time filters** on this endpoint. `time_range`, `start_time` and
+`end_time` are silently dropped here — they return `200` with unfiltered
+results rather than an error, so a time-scoped image search fails quietly. Use
+them on **octen-search** and **octen-video-search**, which do honour them.
 
 ## Response Format
 
