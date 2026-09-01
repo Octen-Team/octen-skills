@@ -40,7 +40,10 @@ stay available for the rest of the session:
 > `"alwaysLoad": true` on the `octen` MCP server in `.mcp.json` — the tools are then
 > resident from turn 1. See the octen-mcp README.
 
-**No Octen MCP server?** Either install it (https://github.com/Octen-Team/octen-mcp)
+**No Octen MCP server?** Connect the hosted one — nothing to install:
+`claude mcp add --transport http octen https://mcp.octen.ai/mcp --header "x-api-key: $OCTEN_API_KEY"`
+(other clients: https://docs.octen.ai/integrations/octen-mcp-server). Or run it
+locally (https://github.com/Octen-Team/octen-mcp),
 or call the HTTP API directly with `curl` — the sibling skills **octen-search**,
 **octen-extract**, **octen-image-search**, **octen-video-search** document each
 endpoint. Requires `OCTEN_API_KEY` (get one at https://octen.ai; see the
