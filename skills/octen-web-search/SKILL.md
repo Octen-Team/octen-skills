@@ -60,7 +60,7 @@ endpoint. Requires `OCTEN_API_KEY` (get one at https://octen.ai; see the
 | Recent events / headlines — a single news lookup | `search` with `topic:news` | (`news_search` is the same thing.) |
 | Multiple distinct parts or entities one search can't cover: comparisons across many sources, surveys, "what are the options for X", a question that decomposes into 3+ sub-questions | `broad_search` | Fans out; **~Nx cost + latency** — see below. |
 | A multi-angle question about *recent* events ("what shipped across the industry this month") | `broad_search` with `topic:news` | Not repeated `news_search`. |
-| Read a page you already have the URL for | `extract` | 1–20 URLs → clean markdown. |
+| Read a page you already have the URL for | `extract` | 1–20 URLs → clean markdown. Hard sites (Reddit/X/LinkedIn, anti-bot) → `mode: advanced`. |
 | Find images, photos, diagrams, screenshots, visual references | `image_search` | For UI design refs with style tokens + HTML/CSS, use the **octen-design** skill. |
 | Find videos, clips, footage, tutorials, a moment in a video | `video_search` | |
 
