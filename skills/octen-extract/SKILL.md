@@ -1,8 +1,8 @@
 ---
 name: octen-extract
-description: USE FOR extracting clean, LLM-ready content from one or more web page URLs, powered by Octen. Fetch 1-20 URLs in one call and get markdown/text content plus a page category, page-structure label, and (optionally) query-driven highlights. Use it for reading articles, scraping pages for RAG/grounding, summarization, or fact lookup from known URLs. Set mode "advanced" for hard sites (Reddit, X, LinkedIn, anti-bot / JS-heavy pages) and include_links to list a page's links.
+description: USE FOR extracting clean, LLM-ready content from one or more web page URLs, powered by Octen. Fetch 1-20 URLs in one call and get markdown/text content plus a page category, page-structure label, and (optionally) query-driven highlights. Use it for reading articles, scraping pages for RAG/grounding, summarization, or fact lookup from known URLs. It can also list the links on a page.
 homepage: https://octen.ai
-keywords: [extract, scrape, url, web page, content extraction, markdown, RAG, octen, read url, reddit, linkedin, anti-bot, page links]
+keywords: [extract, scrape, url, web page, content extraction, markdown, RAG, octen, read url, page links]
 metadata: {"clawdbot":{"emoji":"📄","requires":{"bins":["curl"],"env":["OCTEN_API_KEY"]},"primaryEnv":"OCTEN_API_KEY"}, "homepage": "https://octen.ai", "support": "support@octen.ai"}
 ---
 
