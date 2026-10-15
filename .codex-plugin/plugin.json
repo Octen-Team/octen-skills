@@ -1,6 +1,6 @@
 {
   "name": "octen",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Real-time web search, broad multi-angle search, URL extraction, and UI design references for coding agents, powered by Octen.",
   "author": {
     "name": "Octen Team",
@@ -24,9 +24,9 @@
     "composerIcon": "./assets/icon.png",
     "logo": "./assets/logo.png",
     "defaultPrompt": [
-      "Use Octen to look up the latest news on this topic.",
-      "Use Octen to compare the main options and cite sources.",
-      "Use Octen to read this URL and summarize it."
+      "Summarize this week's most important AI news, with sources.",
+      "Compare the leading cloud GPU providers on pricing and features, citing sources.",
+      "Find the official Node.js LTS release notes and summarize what changed."
     ]
   }
 }
