@@ -61,6 +61,7 @@ endpoint. Requires `OCTEN_API_KEY` (get one at https://octen.ai; see the
 | A company or a person — what they do, who runs it, financials, recent announcements, or two compared | `business_search` | Returns structured cards, not pages to read. Far cheaper than `search` plus reading the results. |
 | Multiple distinct parts or entities one search can't cover: comparisons across many sources, surveys, "what are the options for X", a question that decomposes into 3+ sub-questions | `broad_search` | Fans out; **~Nx cost + latency** — see below. |
 | A multi-angle question about *recent* events ("what shipped across the industry this month") | `broad_search` | Not repeated `news_search`. |
+| A real-world place — "coffee shops near me", opening hours, an address or a phone number | `place_search` | Structured place cards. **Pass the user's location**; without it "near me" means nothing. |
 | Read a page you already have the URL for | `extract` | 1–20 URLs → clean markdown. Hard sites (Reddit/X/LinkedIn, anti-bot) → `mode: advanced`. |
 | Find images, photos, diagrams, screenshots, visual references | `image_search` | Text query, or a reference image. |
 | Find videos, clips, footage, tutorials, a moment in a video | `video_search` | |

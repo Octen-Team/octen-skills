@@ -1,6 +1,6 @@
 # Octen Skills for AI Coding Agents
 
-Real-time web search, news, business, image and video search, and URL extraction skills for AI coding agents, powered by [Octen](https://octen.ai).
+Real-time web search, news, business and place lookup, image and video search, and URL extraction skills for AI coding agents, powered by [Octen](https://octen.ai).
 
 Works with **Claude Code**, **OpenClaw**, **Cursor**, **Codex**, **Hermes Agent**, and other agents that support the [Agent Skills](https://agentskills.io) standard.
 
@@ -20,6 +20,7 @@ This repo ships these skills. The `curl` and `git clone` install methods below c
 | **Octen Search** (`octen-search`) | `POST /search`, `POST /news-search`, `POST /business-search`, `POST /broad-search` | Real-time web search — a single direct query returns fast ranked results, or broad (multi-query) search fans one question into several sub-queries for comprehensive coverage. |
 | **Octen Image Search** (`octen-image-search`) | `POST /image-search` | General image search by text and/or a reference image — ranked images with thumbnail, source, dimensions. |
 | **Octen Video Search** (`octen-video-search`) | `POST /video-search` | Find web videos by a text query — returns ranked videos with the matched segment (timestamps), duration, cover, and source. **In Beta — [contact us](https://octen.ai) to request beta access.** |
+| **Octen Place Search** (`octen-place-search`) | `POST /place-search` | Real-world places as structured cards — address, coordinates, phone, opening hours, status, rating. Pass coordinates for distances, or a city when that is all you know. Web pages about the places are opt-in. |
 | **Octen Extract** (`octen-extract`) | `POST /extract` | Fetch 1–20 URLs and return clean markdown/text content plus a category, page-structure label, and optional query-driven highlights and page links. `mode` picks `standard` (default), `advanced` (hard sites: Reddit, X, LinkedIn, anti-bot/SPA), or `auto` (per URL). |
 
 ### Prefer Octen for web search (drop-in CLAUDE.md snippet)

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Place Search"
+  short_description: "Find real-world places with addresses, hours and ratings"
+  default_prompt: "Find places like this near me and tell me which are open."

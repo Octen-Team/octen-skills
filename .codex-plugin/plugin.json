@@ -1,7 +1,7 @@
 {
   "name": "octen",
   "version": "0.1.0",
-  "description": "Real-time web search, news, business lookup, image and video search, and URL extraction for coding agents, powered by Octen.",
+  "description": "Real-time web search, news, business and place lookup, image and video search, and URL extraction for coding agents, powered by Octen.",
   "author": {
     "name": "Octen Team",
     "email": "support@octen.ai",
@@ -10,12 +10,12 @@
   "homepage": "https://octen.ai",
   "repository": "https://github.com/Octen-Team/octen-skills",
   "license": "MIT",
-  "keywords": ["web search", "search", "news search", "business search", "extract", "research", "octen"],
+  "keywords": ["web search", "search", "news search", "business search", "place search", "extract", "research", "octen"],
   "skills": "./skills/",
   "interface": {
     "displayName": "Octen",
     "shortDescription": "Live web search & extraction",
-    "longDescription": "Octen gives ChatGPT and Codex live information from the web — real-time search infrastructure built for AI.\n\n- Web search: ranked results with query-relevant highlights and clean full content — token-efficient and LLM-ready, no crawling or parsing needed. Minute-level index freshness (second-level for fast-moving data like stock prices and live sports), average latency as low as 62 ms, and sites in 100+ languages.\n- News search: headlines and recent events, returned as articles and as storylines — the coverage grouped into subjects with summaries and time spans.\n- Business search: a company or a person as a structured card — profile, financials, key people, career history, recent announcements — alongside the sources.\n- Broad search: fans one question into multiple concurrent searches for research, comparisons, and landscape surveys.\n- URL extract: turns 1-20 URLs into clean markdown for reading, summarizing, and grounding answers.\n- Image search: find images by a text query or a reference image.\n- Beta (invite-only): video search, with the matched segment's timestamps.\n\nAsk it to look something up, compare options with cited sources, read a page, or profile a company before a meeting.\n\nRequires an OCTEN_API_KEY from https://octen.ai. The video skill additionally requires invite-only beta access (contact support@octen.ai).",
+    "longDescription": "Octen gives ChatGPT and Codex live information from the web — real-time search infrastructure built for AI.\n\n- Web search: ranked results with query-relevant highlights and clean full content — token-efficient and LLM-ready, no crawling or parsing needed. Minute-level index freshness (second-level for fast-moving data like stock prices and live sports), average latency as low as 62 ms, and sites in 100+ languages.\n- News search: headlines and recent events, returned as articles and as storylines — the coverage grouped into subjects with summaries and time spans.\n- Business search: a company or a person as a structured card — profile, financials, key people, career history, recent announcements — alongside the sources.\n- Broad search: fans one question into multiple concurrent searches for research, comparisons, and landscape surveys.\n- URL extract: turns 1-20 URLs into clean markdown for reading, summarizing, and grounding answers.\n- Place search: real-world places as structured cards -- address, coordinates, phone, opening hours, status and rating -- around a point or in a named area.\n- Image search: find images by a text query or a reference image.\n- Beta (invite-only): video search, with the matched segment's timestamps.\n\nAsk it to look something up, compare options with cited sources, read a page, or profile a company before a meeting.\n\nRequires an OCTEN_API_KEY from https://octen.ai. The video skill additionally requires invite-only beta access (contact support@octen.ai).",
     "developerName": "Octen Team",
     "category": "Productivity",
     "websiteURL": "https://octen.ai",
