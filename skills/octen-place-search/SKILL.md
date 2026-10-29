@@ -10,7 +10,8 @@ metadata: {"clawdbot":{"emoji":"📍","requires":{"bins":["curl"],"env":["OCTEN_
 
 Find real-world places and get each one back as a **structured card** — name,
 category, address, coordinates, phone, website, opening hours, status, rating
-and review count. No page reading, no parsing.
+and review count — plus review excerpts when asked for. No page reading, no
+parsing.
 
 **Always pass the user's location when you have it.** Without it, a query that
 names no area is not limited to one, and "near me" means nothing.
@@ -22,7 +23,8 @@ names no area is not limited to one, and "near me" means nothing.
 | "coffee shops near me", "is there a pharmacy nearby" | `latitude` + `longitude`, optionally `radius` |
 | "restaurants in my city" and you only know the city | `user_location` |
 | "ramen restaurants in Shinjuku, Tokyo" | nothing — the query names its own area |
-| "what do people say about these places" | the above, plus `web_search.enable: true` |
+| "what do reviewers say", "is it good for groups" | the above, plus `places.max_reviews` (1–5) |
+| "what has been written about these places" | the above, plus `web_search.enable: true` |
 
 **Not for general web pages** — use the **octen-search** skill. This one answers
 *where, when, how to reach it*; that one answers *what is written about it*.
@@ -105,7 +107,7 @@ curl -s -X POST "https://api.octen.ai/place-search" \
 | `longitude` | number | No | - | WGS84, −180 to 180. Must be sent with `latitude` |
 | `radius` | integer | No | no limit | Metres (1–50000) around the point. Requires both coordinates |
 | `user_location` | object | No | - | `{type: "approximate", city, region, country, timezone}` — the fallback when coordinates are unknown |
-| `places` | object | No | - | `{count}` — how many places (1–20, default 5) |
+| `places` | object | No | - | `{count, max_reviews}` — how many places (1–20, default 5), and review excerpts per place (0–5, default 0) |
 | `web_search` | object | No | off | See below |
 
 ### `web_search`
@@ -165,6 +167,7 @@ on only when the pages themselves matter — reviews, round-ups, articles.
 | `status` | string | `open` / `closed` / `temporarily_closed` / `permanently_closed` |
 | `rating` | number | Out of 5 |
 | `review_count` | integer | Number of reviews |
+| `reviews` | object[] | `{text, rating, time_published}` — **only when `places.max_reviews` was passed**; review text runs long, so ask for it only when what people wrote is the question |
 | `attributes` | object | Whatever else is known about the place |
 
 **Anything that could not be resolved is omitted**, so check a field exists
