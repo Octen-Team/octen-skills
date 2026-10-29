@@ -76,6 +76,17 @@ To target a specific agent, pass `-a`:
 
 `skills` supports many more agents (cline, roo, zed, github-copilot, opencode, qwen-code, …) — run `npx skills add --help` for the full list. Update later with `npx skills update`.
 
+### Updating an existing install
+
+**Removing a skill upstream does not remove it from your machine.** The curl
+fallback below extracts over what is there and deletes nothing, and an install
+tool may do the same. A withdrawn skill left behind keeps firing.
+
+`octen-design` has been withdrawn, pending a dedicated endpoint for design
+references. If you installed it, delete `<skills-dir>/octen-design` — otherwise
+it will go on triggering on frontend work and requesting a corpus that is no
+longer served.
+
 ### No Node? curl fallback
 
 If you can't run `npx`, copy the `skills/` directory into your agent's skills folder:
