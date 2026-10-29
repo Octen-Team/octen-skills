@@ -1,8 +1,8 @@
 ---
 name: octen-search
-description: USE FOR web search, news, and company or person lookup. Real-time web search for AI agents powered by Octen, with dedicated endpoints for news (returns storylines, not just articles) and for business lookup (returns company and person cards). Fast, fresh, and relevant — returns ranked results with highlights, full content, domain filtering, and time filtering. Average response under 80ms with minute-level index freshness. Also supports broad (multi-query) search that fans one question into several sub-queries for comprehensive coverage.
+description: USE FOR web search, news, company or person lookup, and fast URL lookup. Real-time web search for AI agents powered by Octen, with dedicated endpoints for news (returns storylines, not just articles), business lookup (returns company and person cards), and pulse (predicts the URL a query means in ~10ms, for docs and known sites). Fast, fresh, and relevant — returns ranked results with highlights, full content, domain filtering, and time filtering. Average response under 80ms with minute-level index freshness. Also supports broad (multi-query) search that fans one question into several sub-queries for comprehensive coverage.
 homepage: https://octen.ai
-keywords: [web search, search, octen, real-time search, web, news, news search, business search, company, due diligence, research, LLM search, AI search]
+keywords: [web search, search, octen, real-time search, web, news, news search, business search, company, due diligence, pulse search, url lookup, official docs, api reference, research, LLM search, AI search]
 metadata: {"clawdbot":{"emoji":"🔍","requires":{"bins":["curl"],"env":["OCTEN_API_KEY"]},"primaryEnv":"OCTEN_API_KEY"}, "homepage": "https://octen.ai", "support": "support@octen.ai"}
 ---
 
@@ -366,6 +366,76 @@ has the same shape as Search's, plus:
 | `data.entities[]` | array | One card per company or person |
 | `data.entities[]` (company) | object | `name`, `summary`, `aliases`, `identifiers`, `attributes`, `metrics`, `key_people`, `logo`, `activities`, `news` |
 | `data.entities[]` (person) | object | `name`, `summary`, `linkedin_url`, `current_position`, `career`, `photo`, `activities`, `news` |
+
+## Pulse Search
+
+**Pulse Search** predicts the URL a query most likely means instead of
+searching for it. One inference replaces query understanding, recall and
+ranking, so it answers in roughly **10ms** for a fraction of the cost.
+
+**Use it for** reaching a page you could almost name: official docs and API
+references, help centres, a site you know exists.
+
+- `"github docs"` → the docs site
+- `"python list methods"` → the reference page
+- `"how do I return an amazon order"` → the help page
+- `"youtube"` → the destination
+
+**Do not reach for it instead of `/search`.** It sees no fresh content and
+takes no filters — no `include_domains`, no `language`, no time window. News,
+recent events, anything needing freshness: use News Search. A question that
+needs real retrieval across the open web: use Search. Pulse is not a cheaper
+substitute for either; it answers a different question.
+
+### Endpoint
+
+```http
+POST https://api.octen.ai/pulse-search
+```
+
+### Example
+
+```bash
+curl -s -X POST "https://api.octen.ai/pulse-search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{"query": "github docs", "count": 5}'
+```
+
+### Parameters
+
+A different set from the [Parameters](#parameters) table above — none of the
+domain, text, time or language filters apply here.
+
+| Parameter | Type | Required | Default | Description |
+|--|--|--|--|--|
+| `query` | string | **Yes** | - | What to find the destination for (max 500 chars) |
+| `mode` | string | No | `lite` | `lite` or `standard` — see below |
+| `count` | integer | No | `5` | Results (**1–10**, not 1–100) |
+| `safesearch` | string | No | `strict` | `off` / `strict` |
+| `include_images` | boolean | No | `false` | No effect in `lite` |
+| `highlight` | object | No | - | `{enable (def true), max_tokens (def 512, 100–20000)}`. No effect in `lite` |
+| `full_content` | object | No | - | `{enable (def false), max_tokens (def 2048, 100–100000)}`. No effect in `lite` |
+
+### `lite` vs `standard`
+
+| | `lite` (default) | `standard` |
+|--|--|--|
+| Returns | title + URL | adds highlight, full content, images, authors, timestamps, favicon |
+| Latency | ~10ms P50 | ~23ms P50 |
+| Use when | a URL and a title are enough | the page content itself is needed |
+
+> ⚠️ **In `lite` the URL comes back without a scheme** — `github.com/docs`, not
+> `https://github.com/docs`. Prepend `https://` before fetching or passing it
+> to Extract.
+
+The first result's full content per search is free; further results are billed.
+
+### Response
+
+Same envelope (`code`, `msg`, `request_id`, `meta`) as Search. `data.results[]`
+has the Search result shape, except that in `lite` only `title` and `url` are
+populated. `meta.usage` adds `billed_mode` (`lite` or `standard`).
 
 ## Error Codes
 
