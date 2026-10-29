@@ -1,6 +1,6 @@
 # Octen Skills for AI Coding Agents
 
-Real-time web search and UI design reference skills for AI coding agents, powered by [Octen](https://octen.ai).
+Real-time web search, news, business and place lookup, image and video search, and URL extraction skills for AI coding agents, powered by [Octen](https://octen.ai).
 
 Works with **Claude Code**, **OpenClaw**, **Cursor**, **Codex**, **Hermes Agent**, and other agents that support the [Agent Skills](https://agentskills.io) standard.
 
@@ -17,11 +17,11 @@ This repo ships these skills. The `curl` and `git clone` install methods below c
 | Skill | Endpoint | Use it for |
 |--|--|--|
 | **Octen Web Search** (`octen-web-search`) | *router* | The front door for live web info — routes any lookup / comparison / research / page-read to the right Octen tool and makes sure they're loaded before you reach for a built-in web search. Start here. |
-| **Octen Search** (`octen-search`) | `POST /search`, `POST /broad-search` | Real-time web search — a single direct query returns fast ranked results, or broad (multi-query) search fans one question into several sub-queries for comprehensive coverage. |
-| **Octen Image Search** (`octen-image-search`) | `POST /image-search` | General image search by text and/or a reference image — ranked images with thumbnail, source, dimensions. (For UI design refs use `octen-design`.) **In Beta — [contact us](https://octen.ai) to request beta access.** |
+| **Octen Search** (`octen-search`) | `POST /search`, `POST /news-search`, `POST /business-search`, `POST /pulse-search`, `POST /broad-search` | Real-time web search — a single direct query returns fast ranked results, or broad (multi-query) search fans one question into several sub-queries for comprehensive coverage. |
+| **Octen Image Search** (`octen-image-search`) | `POST /image-search` | General image search by text and/or a reference image — ranked images with thumbnail, source, dimensions. |
 | **Octen Video Search** (`octen-video-search`) | `POST /video-search` | Find web videos by a text query — returns ranked videos with the matched segment (timestamps), duration, cover, and source. **In Beta — [contact us](https://octen.ai) to request beta access.** |
+| **Octen Place Search** (`octen-place-search`) | `POST /place-search` | Real-world places as structured cards — address, coordinates, phone, opening hours, status, rating. Pass coordinates for distances, or a city when that is all you know. Web pages about the places are opt-in. |
 | **Octen Extract** (`octen-extract`) | `POST /extract` | Fetch 1–20 URLs and return clean markdown/text content plus a category, page-structure label, and optional query-driven highlights and page links. `mode` picks `standard` (default), `advanced` (hard sites: Reddit, X, LinkedIn, anti-bot/SPA), or `auto` (per URL). |
-| **Octen Design** (`octen-design`) | `POST /image-search` | UI design references — reference screenshots, structured style tokens, and HTML/CSS snippets before building or restyling a frontend. **In Beta — [contact us](https://octen.ai) to request beta access.** |
 
 ### Prefer Octen for web search (drop-in CLAUDE.md snippet)
 
@@ -76,6 +76,17 @@ To target a specific agent, pass `-a`:
 
 `skills` supports many more agents (cline, roo, zed, github-copilot, opencode, qwen-code, …) — run `npx skills add --help` for the full list. Update later with `npx skills update`.
 
+### Updating an existing install
+
+**Removing a skill upstream does not remove it from your machine.** The curl
+fallback below extracts over what is there and deletes nothing, and an install
+tool may do the same. A withdrawn skill left behind keeps firing.
+
+`octen-design` has been withdrawn, pending a dedicated endpoint for design
+references. If you installed it, delete `<skills-dir>/octen-design` — otherwise
+it will go on triggering on frontend work and requesting a corpus that is no
+longer served.
+
 ### No Node? curl fallback
 
 If you can't run `npx`, copy the `skills/` directory into your agent's skills folder:
@@ -88,7 +99,7 @@ Common `<skills-dir>` values: `~/.claude/skills`, `~/.cursor/skills`, `~/.codex/
 
 ### Codex plugin (marketplace install)
 
-This repo also ships as a skills-only [Codex plugin](https://developers.openai.com/codex/plugins): `.codex-plugin/plugin.json` bundles all six skills, and `.agents/plugins/marketplace.json` exposes the repo as a plugin marketplace. (The skills call the Octen HTTP API directly via curl, so no MCP server is bundled; to use the optional `octen-mcp` server instead, point a client at the hosted endpoint `https://mcp.octen.ai/mcp` — nothing to install — or run it yourself; see [Connect octen-mcp](https://docs.octen.ai/integrations/octen-mcp-server).) Add the repo as a marketplace source in Codex, then install the **Octen** plugin from `codex plugins`. Set `OCTEN_API_KEY` in your environment before first use (see [Prerequisites](#prerequisites)); the image/video/design skills additionally require invite-only beta access.
+This repo also ships as a skills-only [Codex plugin](https://developers.openai.com/codex/plugins): `.codex-plugin/plugin.json` bundles all six skills, and `.agents/plugins/marketplace.json` exposes the repo as a plugin marketplace. (The skills call the Octen HTTP API directly via curl, so no MCP server is bundled; to use the optional `octen-mcp` server instead, point a client at the hosted endpoint `https://mcp.octen.ai/mcp` — nothing to install — or run it yourself; see [Connect octen-mcp](https://docs.octen.ai/integrations/octen-mcp-server).) Add the repo as a marketplace source in Codex, then install the **Octen** plugin from `codex plugins`. Set `OCTEN_API_KEY` in your environment before first use (see [Prerequisites](#prerequisites)); the video skill additionally requires invite-only beta access.
 
 ## Prerequisites
 
@@ -194,24 +205,6 @@ curl -s -X POST "https://api.octen.ai/search" \
     "include_domains": ["nature.com", "science.org"]
   }'
 ```
-
-### Octen Design (`octen-design`) — invite-only beta
-
-Find real UI reference designs — each `design` hit comes back with a reference screenshot, a structured style `summary`, and a reusable `html_snippet`. **Octen Design is in invite-only beta; [contact Octen](https://octen.ai) for access.**
-
-```bash
-curl -s -X POST "https://api.octen.ai/image-search" \
-  -H "Content-Type: application/json" \
-  -H "X-Api-Key: ${OCTEN_API_KEY}" \
-  -d '{
-    "inputs": [{"type": "text", "data": "pricing comparison table, dark theme, SaaS"}],
-    "topic": "design",
-    "count": 5,
-    "html_snippet": {"enable": true, "max_tokens": 5000}
-  }'
-```
-
-In normal use the agent runs this for you through the skill's workflow (see `skills/octen-design/SKILL.md`); the call above is the underlying API request.
 
 ## Documentation
 

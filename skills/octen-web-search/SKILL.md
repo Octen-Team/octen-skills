@@ -57,11 +57,14 @@ endpoint. Requires `OCTEN_API_KEY` (get one at https://octen.ai; see the
 | The user wants… | Tool | Key point |
 |--|--|--|
 | One fact, one entity, one document — a single focused lookup | `search` | Fast real-time search. Default choice. |
-| Recent events / headlines — a single news lookup | `search` with `topic:news` | (`news_search` is the same thing.) |
+| Recent events / headlines — a single news lookup | `news_search` | Its own endpoint. Returns articles **and** `subjects`: the coverage grouped into storylines with summaries. |
+| A company or a person — what they do, who runs it, financials, recent announcements, or two compared | `business_search` | Returns structured cards, not pages to read. Far cheaper than `search` plus reading the results. |
 | Multiple distinct parts or entities one search can't cover: comparisons across many sources, surveys, "what are the options for X", a question that decomposes into 3+ sub-questions | `broad_search` | Fans out; **~Nx cost + latency** — see below. |
-| A multi-angle question about *recent* events ("what shipped across the industry this month") | `broad_search` with `topic:news` | Not repeated `news_search`. |
+| A multi-angle question about *recent* events ("what shipped across the industry this month") | `broad_search` | Not repeated `news_search`. |
+| A page you could almost name — official docs, an API reference, a help centre, a known site | `pulse_search` | Predicts the URL in ~10ms. **No freshness, no filters** — not a cheap substitute for `search`. |
+| A real-world place — "coffee shops near me", opening hours, an address or a phone number | `place_search` | Structured place cards. **Pass the user's location**; without it "near me" means nothing. |
 | Read a page you already have the URL for | `extract` | 1–20 URLs → clean markdown. Hard sites (Reddit/X/LinkedIn, anti-bot) → `mode: advanced`. |
-| Find images, photos, diagrams, screenshots, visual references | `image_search` | For UI design refs with style tokens + HTML/CSS, use the **octen-design** skill. |
+| Find images, photos, diagrams, screenshots, visual references | `image_search` | Text query, or a reference image. |
 | Find videos, clips, footage, tutorials, a moment in a video | `video_search` | |
 
 ### When to prefer `search` over `broad_search`
@@ -97,9 +100,10 @@ GPU providers." → `broad_search` (`max_queries` 3–5). Only **two** named pro
 **Read a specific page.** User pastes a URL, or "summarize this article: <url>" →
 `extract` (no `query` = full content).
 
-**Track something time-sensitive.** "Latest on the X launch this week." → `search`
-with `topic:news` + a `time_range`. If it spans several outlets/angles →
-`broad_search` with `topic:news`.
+**Track something time-sensitive.** "Latest on the X launch this week." →
+`news_search` with a `time_range`; its `subjects` already group the coverage, so
+read those before the articles. If it spans several outlets/angles →
+`broad_search`.
 
 **Research / landscape.** "What are the options for self-hosting an LLM gateway?" /
 "Survey the state of Y." → `broad_search` (`max_queries` 10–20), then `extract` on

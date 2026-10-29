@@ -1,8 +1,8 @@
 ---
 name: octen-search
-description: USE FOR web search. Real-time web search for AI agents powered by Octen. Fast, fresh, and relevant — returns ranked results with highlights, full content, domain filtering, and time filtering. Average response under 80ms with minute-level index freshness. Also supports broad (multi-query) search that fans one question into several sub-queries for comprehensive coverage.
+description: USE FOR web search, news, company or person lookup, and fast URL lookup. Real-time web search for AI agents powered by Octen, with dedicated endpoints for news (returns storylines, not just articles), business lookup (returns company and person cards), and pulse (predicts the URL a query means in ~10ms, for docs and known sites). Fast, fresh, and relevant — returns ranked results with highlights, full content, domain filtering, and time filtering. Average response under 80ms with minute-level index freshness. Also supports broad (multi-query) search that fans one question into several sub-queries for comprehensive coverage.
 homepage: https://octen.ai
-keywords: [web search, search, octen, real-time search, web, news, research, LLM search, AI search]
+keywords: [web search, search, octen, real-time search, web, news, news search, business search, company, due diligence, pulse search, url lookup, official docs, api reference, research, LLM search, AI search]
 metadata: {"clawdbot":{"emoji":"🔍","requires":{"bins":["curl"],"env":["OCTEN_API_KEY"]},"primaryEnv":"OCTEN_API_KEY"}, "homepage": "https://octen.ai", "support": "support@octen.ai"}
 ---
 
@@ -107,7 +107,6 @@ POST https://api.octen.ai/search
 | Parameter | Type | Required | Default | Description |
 |--|--|--|--|--|
 | `query` | string | **Yes** | - | Search query (max 500 chars) |
-| `topic` | string | No | `general` | Search vertical: `general` or `news` |
 | `count` | integer | No | `5` | Number of results (1–100) |
 | `include_domains` | string[] | No | - | Only include results from these domains (max 1200 domains, each max 60 chars) |
 | `exclude_domains` | string[] | No | - | Exclude results from these domains (max 1200 domains, each max 60 chars) |
@@ -237,7 +236,7 @@ curl -s -X POST "https://api.octen.ai/broad-search" \
 |--|--|--|--|--|
 | `query` | string | **Yes** | - | Original search query (max 500 chars) |
 | `max_queries` | integer | No | `5` | Upper bound on the number of sub-queries generated (1–30); raise toward 30 for surveys/research, lower for a tighter search |
-| `search_options` | object | No | - | Options applied to **each** sub-query — same fields and defaults as the [Parameters](#parameters) table above (`topic`, `count`, `include_domains`, `language`, time filters, `highlight`, `full_content`, `include_images`, …) |
+| `search_options` | object | No | - | Options applied to **each** sub-query — same fields and defaults as the [Parameters](#parameters) table above (`count`, `include_domains`, `language`, time filters, `highlight`, `full_content`, `include_images`, …) |
 
 ### Response
 
@@ -251,6 +250,198 @@ Same envelope (`code`, `msg`, `request_id`, `meta`) as Search. `data` contains:
 | `data.search_results[].query` | string | The sub-query for this group |
 | `data.search_results[].results[]` | array | Results for that sub-query (same shape as Search `data.results[]`) |
 | `data.search_results[].latency` | integer | Latency for that sub-query, in milliseconds |
+
+## News Search
+
+**News Search** is its own endpoint, not `/search` with a flag. Alongside ranked
+articles it returns **`subjects`**: the coverage grouped into storylines, each
+with a summary and the span it covers — so "what happened with X" is answerable
+without reading every article. Read the storylines first; the articles are the
+evidence behind them.
+
+**`include_domains` / `exclude_domains` filter `data.results` only — never
+`data.subjects`.** The storylines are built from the open web regardless, so a
+question that restricts its sources ("what is Reuters reporting on X") has to be
+answered from `data.results`. Answering it from the storylines cites outlets the
+caller excluded.
+
+**Use it for** what is being reported right now: breaking events, announcements,
+coverage of a company or person over the last days or weeks. For a company or
+person *profile* — financials, key people, career history — use Business Search
+below, which returns that as structured cards instead of articles.
+
+### Endpoint
+
+```http
+POST https://api.octen.ai/news-search
+```
+
+### Example
+
+```bash
+curl -s -X POST "https://api.octen.ai/news-search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{
+    "query": "EU AI Act enforcement",
+    "count": 10,
+    "time_range": "week",
+    "subjects": {"count": 3}
+  }'
+```
+
+### Parameters
+
+Same fields and defaults as the [Parameters](#parameters) table above **except**
+`include_text` / `exclude_text`, `format`, `safesearch` and `include_images`,
+which this endpoint does not take — plus:
+
+| Parameter | Type | Required | Default | Description |
+|--|--|--|--|--|
+| `subjects` | object | No | on | `{enable, count (def 2, 1–5), max_sub_news (def 5, 1–20)}` — group the coverage into storylines. Omit to take the server default. |
+
+### Response
+
+Same envelope (`code`, `msg`, `request_id`, `meta`) as Search. `data.results[]`
+has the same shape as Search's, plus:
+
+| Field | Type | Description |
+|--|--|--|
+| `data.subjects[]` | array | One per storyline; present only when `subjects.enable` and at least one was found. Not subject to `include_domains` / `exclude_domains` — see above |
+| `data.subjects[].name` | string | The storyline |
+| `data.subjects[].summary` | string | What it amounts to |
+| `data.subjects[].time_start` / `.time_latest` | string | The span it covers |
+| `data.subjects[].top_news` | object | The lead article, with its own `summary` |
+| `data.subjects[].sub_news[]` | array | Supporting articles |
+
+## Business Search
+
+**Business Search** returns the companies and people behind a query as
+**entity cards** — profile, identifiers, financial and stock metrics, key
+people, career history, recent announcements — alongside the ranked sources.
+Name two companies in one query and each gets a card with the same fields,
+ready to compare.
+
+**The cards are the point.** They carry what a model would otherwise assemble by
+reading a dozen pages, so a company question costs a fraction of the context.
+
+**Use it for** questions about a business or the people in one: what a company
+does, due diligence, who runs it, how two compare, what they have announced
+lately. For breaking coverage of an event use News Search; for general web pages
+use plain `/search`. Set `entities.enable` to `false` for a plain ranked list.
+
+### Endpoint
+
+```http
+POST https://api.octen.ai/business-search
+```
+
+### Example
+
+```bash
+curl -s -X POST "https://api.octen.ai/business-search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{
+    "query": "compare Stripe and Adyen payment processing",
+    "count": 10,
+    "entities": {"count": 2, "max_news": 5}
+  }'
+```
+
+### Parameters
+
+Same fields and defaults as the [Parameters](#parameters) table above **except**
+`include_text` / `exclude_text`, `format`, `safesearch` and `include_images`,
+which this endpoint does not take — plus:
+
+| Parameter | Type | Required | Default | Description |
+|--|--|--|--|--|
+| `entities` | object | No | on | `{enable, count (def 2, 1–20), max_activities (def 5, 1–20), max_news (def 5, 1–20)}`. Omit to take the server default. |
+
+> The domain, time and language filters narrow the **ranked results only** —
+> never the entity cards.
+
+### Response
+
+Same envelope (`code`, `msg`, `request_id`, `meta`) as Search. `data.results[]`
+has the same shape as Search's, plus:
+
+| Field | Type | Description |
+|--|--|--|
+| `data.entities[]` | array | One card per company or person |
+| `data.entities[]` (company) | object | `name`, `summary`, `aliases`, `identifiers`, `attributes`, `metrics`, `key_people`, `logo`, `activities`, `news` |
+| `data.entities[]` (person) | object | `name`, `summary`, `linkedin_url`, `current_position`, `career`, `photo`, `activities`, `news` |
+
+## Pulse Search
+
+**Pulse Search** predicts the URL a query most likely means instead of
+searching for it. One inference replaces query understanding, recall and
+ranking, so it answers in roughly **10ms** for a fraction of the cost.
+
+**Use it for** reaching a page you could almost name: official docs and API
+references, help centres, a site you know exists.
+
+- `"github docs"` → the docs site
+- `"python list methods"` → the reference page
+- `"how do I return an amazon order"` → the help page
+- `"youtube"` → the destination
+
+**Do not reach for it instead of `/search`.** It sees no fresh content and
+takes no filters — no `include_domains`, no `language`, no time window. News,
+recent events, anything needing freshness: use News Search. A question that
+needs real retrieval across the open web: use Search. Pulse is not a cheaper
+substitute for either; it answers a different question.
+
+### Endpoint
+
+```http
+POST https://api.octen.ai/pulse-search
+```
+
+### Example
+
+```bash
+curl -s -X POST "https://api.octen.ai/pulse-search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{"query": "github docs", "count": 5}'
+```
+
+### Parameters
+
+A different set from the [Parameters](#parameters) table above — none of the
+domain, text, time or language filters apply here.
+
+| Parameter | Type | Required | Default | Description |
+|--|--|--|--|--|
+| `query` | string | **Yes** | - | What to find the destination for (max 500 chars) |
+| `mode` | string | No | `lite` | `lite` or `standard` — see below |
+| `count` | integer | No | `5` | Results (**1–10**, not 1–100) |
+| `safesearch` | string | No | `strict` | `off` / `strict` |
+| `include_images` | boolean | No | `false` | No effect in `lite` |
+| `highlight` | object | No | - | `{enable (def true), max_tokens (def 512, 100–20000)}`. No effect in `lite` |
+| `full_content` | object | No | - | `{enable (def false), max_tokens (def 2048, 100–100000)}`. No effect in `lite` |
+
+### `lite` vs `standard`
+
+| | `lite` (default) | `standard` |
+|--|--|--|
+| Returns | title + URL | adds highlight, full content, images, authors, timestamps, favicon |
+| Latency | ~10ms P50 | ~23ms P50 |
+| Use when | a URL and a title are enough | the page content itself is needed |
+
+> ⚠️ **In `lite` the URL comes back without a scheme** — `github.com/docs`, not
+> `https://github.com/docs`. Prepend `https://` before fetching or passing it
+> to Extract.
+
+The first result's full content per search is free; further results are billed.
+
+### Response
+
+Same envelope (`code`, `msg`, `request_id`, `meta`) as Search. `data.results[]`
+has the Search result shape, except that in `lite` only `title` and `url` are
+populated. `meta.usage` adds `billed_mode` (`lite` or `standard`).
 
 ## Error Codes
 
