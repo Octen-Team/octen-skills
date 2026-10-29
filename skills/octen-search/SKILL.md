@@ -259,6 +259,12 @@ with a summary and the span it covers — so "what happened with X" is answerabl
 without reading every article. Read the storylines first; the articles are the
 evidence behind them.
 
+**`include_domains` / `exclude_domains` filter `data.results` only — never
+`data.subjects`.** The storylines are built from the open web regardless, so a
+question that restricts its sources ("what is Reuters reporting on X") has to be
+answered from `data.results`. Answering it from the storylines cites outlets the
+caller excluded.
+
 **Use it for** what is being reported right now: breaking events, announcements,
 coverage of a company or person over the last days or weeks. For a company or
 person *profile* — financials, key people, career history — use Business Search
@@ -301,7 +307,7 @@ has the same shape as Search's, plus:
 
 | Field | Type | Description |
 |--|--|--|
-| `data.subjects[]` | array | One per storyline; present only when `subjects.enable` and at least one was found |
+| `data.subjects[]` | array | One per storyline; present only when `subjects.enable` and at least one was found. Not subject to `include_domains` / `exclude_domains` — see above |
 | `data.subjects[].name` | string | The storyline |
 | `data.subjects[].summary` | string | What it amounts to |
 | `data.subjects[].time_start` / `.time_latest` | string | The span it covers |
