@@ -1,15 +1,17 @@
 ---
 name: octen-search
-description: USE FOR web search, news, company or person lookup, and fast URL lookup. Real-time web search for AI agents powered by Octen, with dedicated endpoints for news (returns storylines, not just articles), business lookup (returns company and person cards), and pulse (predicts the URL a query means in ~10ms, for docs and known sites). Fast, fresh, and relevant — returns ranked results with highlights, full content, domain filtering, and time filtering. Average response under 80ms with minute-level index freshness. Also supports broad (multi-query) search that fans one question into several sub-queries for comprehensive coverage.
+description: USE FOR web search, news, company or person lookup, and fast URL lookup. Real-time web search for AI agents powered by Octen, with dedicated endpoints for news (returns storylines, not just articles), business lookup (returns company and person cards), and pulse (predicts the URL a query means in ~10ms, for docs and known sites), plus a premier tier of web search with deeper retrieval and reranking for the page that is hard to find. Fast, fresh, and relevant — returns ranked results with highlights, full content, domain filtering, and time filtering. Average response under 80ms with minute-level index freshness. Also supports broad (multi-query) search that fans one question into several sub-queries for comprehensive coverage.
 homepage: https://octen.ai
-keywords: [web search, search, octen, real-time search, web, news, news search, business search, company, due diligence, pulse search, url lookup, official docs, api reference, research, LLM search, AI search]
+keywords: [web search, search, octen, real-time search, web, news, news search, business search, company, due diligence, pulse search, url lookup, search premier, premier search, official docs, api reference, research, LLM search, AI search]
 metadata: {"clawdbot":{"emoji":"🔍","requires":{"bins":["curl"],"env":["OCTEN_API_KEY"]},"primaryEnv":"OCTEN_API_KEY"}, "homepage": "https://octen.ai", "support": "support@octen.ai"}
 ---
 
 # Octen Search
 
 Octen's search skill. It provides real-time **web search** plus **broad
-(multi-query) search** (see [Broad Search](#broad-search) below). Image and
+(multi-query) search** (see [Broad Search](#broad-search) below), and a
+**premier** tier of web search for the page that is hard to find (see
+[Search Premier](#search-premier)). Image and
 video search live in the separate **octen-image-search** and
 **octen-video-search** skills.
 
@@ -107,13 +109,15 @@ POST https://api.octen.ai/search
 | Parameter | Type | Required | Default | Description |
 |--|--|--|--|--|
 | `query` | string | **Yes** | - | Search query (max 500 chars) |
-| `count` | integer | No | `5` | Number of results (1–100) |
+| `count` | integer | No | `5` | Number of results (1–100). With `result_type: dynamic` this is the maximum |
+| `result_type` | string | No | `standard` | `standard` returns results as the other parameters specify; `dynamic` returns only the relevant ones, up to `count`, and adjusts highlight length per result |
 | `include_domains` | string[] | No | - | Only include results from these domains (max 1200 domains, each max 60 chars) |
 | `exclude_domains` | string[] | No | - | Exclude results from these domains (max 1200 domains, each max 60 chars) |
 | `include_text` | string[] | No | - | Strings that must appear in result page text (max 5 items, each max 30 chars) |
 | `exclude_text` | string[] | No | - | Strings that must not appear in result page text (max 5 items, each max 30 chars) |
 | `language` | string[] | No | `[]` | Filter results to these languages, as ISO 639-1 codes (e.g. `["en", "ja"]`). Supported: `ar`, `de`, `en`, `es`, `fr`, `hi`, `id`, `it`, `ja`, `ko`, `nl`, `pl`, `pt`, `ru`, `th`, `tr`, `vi`, `zh`. Empty = no language filter. See https://localizely.com/iso-639-1-list/ |
 | `time_basis` | string | No | `auto` | Time field used for filtering: `auto`, `published`, `crawled` |
+| `time_range` | string | No | - | Relative window back from now: `day`, `week`, `month`, `year` (or `d`, `w`, `m`, `y`). `start_time` / `end_time` win if both are given |
 | `start_time` | string | No | - | Start time filter, ISO 8601 (e.g. `2025-01-01T00:00:00Z`) |
 | `end_time` | string | No | - | End time filter, ISO 8601 (must be after `start_time`) |
 | `highlight` | object | No | `{"enable": true}` | Highlight options (see below) |
@@ -127,7 +131,7 @@ POST https://api.octen.ai/search
 | Field | Type | Default | Description |
 |--|--|--|--|
 | `enable` | boolean | `true` | Return query-relevant highlights in each result |
-| `max_tokens` | integer | `512` | Max tokens per highlight (100–20000) |
+| `max_tokens` | integer | `512` | Max tokens per highlight (100–20000). With `result_type: dynamic` Octen may adjust this per result — use `standard` when the budget has to hold |
 
 ### Full Content Options
 
@@ -192,6 +196,50 @@ POST https://api.octen.ai/search
   }
 }
 ```
+
+## Search Premier
+
+**Web Search Premier** is `/search` with deeper retrieval and more careful
+reranking. It reaches more sources — niche and long-tail pages included — and
+ranks the page that actually holds the answer higher. It is a drop-in: the same
+request body, the same response.
+
+**Use it when** a `/search` came back thin or off-target, or the target is
+already known to be hard to find: a specific fact buried deep in a page, a
+niche document, a report or filing you can name but not locate.
+
+**Default to `/search`** for an ordinary lookup. Premier takes longer and is
+billed separately at its own per-call rate, which a Search Plan's unlimited
+searches do not cover. Go to it first only when the target is already known to
+be hard to find; otherwise try `/search` and escalate if the result is thin.
+
+### Endpoint
+
+```http
+POST https://api.octen.ai/search-premier
+```
+
+### Example
+
+```bash
+curl -s -X POST "https://api.octen.ai/search-premier" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{
+    "query": "Kafka default retention period for topics",
+    "count": 5,
+    "highlight": {"enable": true, "max_tokens": 1024}
+  }'
+```
+
+### Parameters
+
+The same fields and defaults as the [Parameters](#parameters) table above —
+nothing added, nothing removed.
+
+### Response
+
+The same as Search: envelope, `data.results[]` and `meta`.
 
 ## Broad Search
 
