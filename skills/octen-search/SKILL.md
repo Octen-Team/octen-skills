@@ -208,9 +208,10 @@ request body, the same response.
 already known to be hard to find: a specific fact buried deep in a page, a
 niche document, a report or filing you can name but not locate.
 
-**Default to `/search`.** Premier takes longer and is billed separately at its
-own per-call rate, which a Search Plan's unlimited searches do not cover. Reach
-for it when ranking quality is what is missing, not as the first call.
+**Default to `/search`** for an ordinary lookup. Premier takes longer and is
+billed separately at its own per-call rate, which a Search Plan's unlimited
+searches do not cover. Go to it first only when the target is already known to
+be hard to find; otherwise try `/search` and escalate if the result is thin.
 
 ### Endpoint
 

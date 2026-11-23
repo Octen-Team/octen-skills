@@ -84,7 +84,7 @@ id back, and ask for as many images as the group holds — up to 100, the most
 one call returns:
 
 ```bash
-curl -s -X POST "https://api.octen.ai/design-search" \
+f=$(mktemp) && curl -s -X POST "https://api.octen.ai/design-search" \
   -H "Content-Type: application/json" \
   -H "X-Api-Key: ${OCTEN_API_KEY}" \
   -d '{
@@ -93,11 +93,16 @@ curl -s -X POST "https://api.octen.ai/design-search" \
       "count": 30
     },
     "web_search": {"enable": false}
-  }'
+  }' -o "$f" && echo "$f"
 ```
 
 The id above is a placeholder — use the `group.group_id` of a result you got
 back. No `query` is needed, and the images come back in group order.
+
+A whole group is written to a file rather than printed: thirty images, each
+with its values and code, is more than a shell shows in one piece. If only the
+screenshots matter, add `"snippet": {"enable": false}` to `images` and the
+response shrinks to a size that can be read directly.
 
 ### More of the code, less of everything else
 
@@ -250,9 +255,21 @@ the designs matter; the pages cost context.
 The shape depends on what the image is, so read what is there rather than
 expecting a fixed set of keys:
 
-- **Web pages and sections** — design tokens: `color` (`background`, `text`,
-  `accent`, … each with a `hex`), `fontFamily`, `fontSize`, `radius`, and
-  sometimes `typography`.
+- **Web pages and sections** — design tokens. Every token is a
+  `{"$type", "$value"}` pair under a role name, so the value sits one level
+  down, not on the role itself:
+  - `color.<role>.$value.hex` → `"#ffffff"`. Roles such as `background`,
+    `text`, `accent`; a full page may add `primary`, `secondary`, `link`.
+  - `fontFamily.body.$value`, `fontFamily.heading.$value` → `["Inter"]`
+  - `fontSize.<role>.$value` → `{"value": 16, "unit": "px"}`. A section keys
+    these by `body` and `heading`; a full page keys them by scale step —
+    `scale-1`, `scale-2`, ….
+  - `radius.default.$value` → `{"value": 12, "unit": "px"}`, when there is one.
+  - `typography.<role>.$value` — full pages only: the family, size and related
+    values for `body`, `h1`, `h2`, ….
+
+  Which roles are present differs from image to image, so check a key exists
+  before reading it.
 - **Slides** — lists such as `fonts`, `fontSizesPt`, `textColors`, `fillColors`,
   or `styleFacts` / `typographyMap` / `layoutFacts`.
 - **App screens** — `layoutFacts`: the `components` used, element, image and
