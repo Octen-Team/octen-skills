@@ -94,6 +94,18 @@ curl -s -X POST "https://api.octen.ai/search" \
   }'
 ```
 
+### With Dynamic Results
+```bash
+curl -s -X POST "https://api.octen.ai/search" \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: ${OCTEN_API_KEY}" \
+  -d '{
+    "query": "EU AI Act enforcement timeline",
+    "count": 10,
+    "result_type": "dynamic"
+  }'
+```
+
 ## Endpoint
 
 ```http
@@ -165,6 +177,7 @@ POST https://api.octen.ai/search
 | `meta.usage.full_content_tokens` | integer | Total tokens returned in full_content |
 | `meta.latency` | number | Response time in milliseconds |
 | `meta.warning` | string? | Warning message, if any |
+| `meta.result_type` | string | The result type used for this request |
 
 ### JSON Example
 
@@ -274,7 +287,7 @@ curl -s -X POST "https://api.octen.ai/broad-search" \
   -d '{
     "query": "compare cloud GPU pricing across major providers",
     "max_queries": 5,
-    "search_options": {"count": 10, "highlight": {"enable": true}}
+    "search_options": {"count": 10, "result_type": "dynamic", "highlight": {"enable": true}}
   }'
 ```
 
@@ -284,7 +297,7 @@ curl -s -X POST "https://api.octen.ai/broad-search" \
 |--|--|--|--|--|
 | `query` | string | **Yes** | - | Original search query (max 500 chars) |
 | `max_queries` | integer | No | `5` | Upper bound on the number of sub-queries generated (1–30); raise toward 30 for surveys/research, lower for a tighter search |
-| `search_options` | object | No | - | Options applied to **each** sub-query — same fields and defaults as the [Parameters](#parameters) table above (`count`, `include_domains`, `language`, time filters, `highlight`, `full_content`, `include_images`, …) |
+| `search_options` | object | No | - | Options applied to **each** sub-query — same fields and defaults as the [Parameters](#parameters) table above (`count`, `result_type`, `include_domains`, `language`, time filters, `highlight`, `full_content`, `include_images`, …) |
 
 ### Response
 
