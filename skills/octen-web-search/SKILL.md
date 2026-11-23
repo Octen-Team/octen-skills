@@ -45,8 +45,8 @@ stay available for the rest of the session:
 (other clients: https://docs.octen.ai/integrations/octen-mcp-server). Or run it
 locally (https://github.com/Octen-Team/octen-mcp),
 or call the HTTP API directly with `curl` — the sibling skills **octen-search**,
-**octen-extract**, **octen-image-search**, **octen-video-search** document each
-endpoint. Requires `OCTEN_API_KEY` (get one at https://octen.ai; see the
+**octen-extract**, **octen-place-search**, **octen-image-search**,
+**octen-design-search** and **octen-video-search** document each endpoint. Requires `OCTEN_API_KEY` (get one at https://octen.ai; see the
 [README](https://github.com/Octen-Team/octen-skills#prerequisites) to configure it).
 
 ## Step 2 — route to the right tool (canonical routing table)
@@ -57,6 +57,7 @@ endpoint. Requires `OCTEN_API_KEY` (get one at https://octen.ai; see the
 | The user wants… | Tool | Key point |
 |--|--|--|
 | One fact, one entity, one document — a single focused lookup | `search` | Fast real-time search. Default choice. |
+| A `search` that came back thin or off-target — or a document already known to be hard to find: a niche report, a filing, a page buried deep in a site | `premier_search` | Takes what `search` takes (plus `result_type`), with deeper retrieval and reranking. Slower and billed separately: **try `search` first** for an ordinary lookup. |
 | Recent events / headlines — a single news lookup | `news_search` | Its own endpoint. Returns articles **and** `subjects`: the coverage grouped into storylines with summaries. |
 | A company or a person — what they do, who runs it, financials, recent announcements, or two compared | `business_search` | Returns structured cards, not pages to read. Far cheaper than `search` plus reading the results. |
 | Multiple distinct parts or entities one search can't cover: comparisons across many sources, surveys, "what are the options for X", a question that decomposes into 3+ sub-questions | `broad_search` | Fans out; **~Nx cost + latency** — see below. |
@@ -65,7 +66,18 @@ endpoint. Requires `OCTEN_API_KEY` (get one at https://octen.ai; see the
 | A real-world place — "coffee shops near me", opening hours, an address or a phone number | `place_search` | Structured place cards. **Pass the user's location**; without it "near me" means nothing. |
 | Read a page you already have the URL for | `extract` | 1–20 URLs → clean markdown. Hard sites (Reddit/X/LinkedIn, anti-bot) → `mode: advanced`. |
 | Find images, photos, diagrams, screenshots, visual references | `image_search` | Text query, or a reference image. |
+| Real designs to build from — web pages, page sections, app screens, slides | `design_search` | Screenshots with their design values, and HTML for page sections. For general pictures use `image_search`. |
 | Find videos, clips, footage, tutorials, a moment in a video | `video_search` | |
+
+> `premier_search` and `design_search` exist from **octen-mcp 0.8.0**; the hosted
+> endpoint has them. If one is not in your tool list, **look for it by its exact
+> name first** — a client that defers tools loads only what a discovery query
+> matched, and the query in Step 1 does not name these two. Only when the server
+> really does not offer it — an older version, or a connection narrowed to fewer
+> tools — call the HTTP endpoint with `curl` instead: the **octen-search** skill
+> documents Search Premier, and **octen-design-search** documents Design Search.
+> That path needs an `OCTEN_API_KEY`; without one, say the tool is unavailable
+> rather than substituting a different tool and presenting it as the same thing.
 
 ### When to prefer `search` over `broad_search`
 

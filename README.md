@@ -1,6 +1,6 @@
 # Octen Skills for AI Coding Agents
 
-Real-time web search, news, business and place lookup, image and video search, and URL extraction skills for AI coding agents, powered by [Octen](https://octen.ai).
+Real-time web search, news, business and place lookup, image, design and video search, and URL extraction skills for AI coding agents, powered by [Octen](https://octen.ai).
 
 Works with **Claude Code**, **OpenClaw**, **Cursor**, **Codex**, **Hermes Agent**, and other agents that support the [Agent Skills](https://agentskills.io) standard.
 
@@ -17,8 +17,9 @@ This repo ships these skills. The `curl` and `git clone` install methods below c
 | Skill | Endpoint | Use it for |
 |--|--|--|
 | **Octen Web Search** (`octen-web-search`) | *router* | The front door for live web info — routes any lookup / comparison / research / page-read to the right Octen tool and makes sure they're loaded before you reach for a built-in web search. Start here. |
-| **Octen Search** (`octen-search`) | `POST /search`, `POST /news-search`, `POST /business-search`, `POST /pulse-search`, `POST /broad-search` | Real-time web search — a single direct query returns fast ranked results, or broad (multi-query) search fans one question into several sub-queries for comprehensive coverage. |
+| **Octen Search** (`octen-search`) | `POST /search`, `POST /search-premier`, `POST /news-search`, `POST /business-search`, `POST /pulse-search`, `POST /broad-search` | Real-time web search — a single direct query returns fast ranked results, or broad (multi-query) search fans one question into several sub-queries for comprehensive coverage. |
 | **Octen Image Search** (`octen-image-search`) | `POST /image-search` | General image search by text and/or a reference image — ranked images with thumbnail, source, dimensions. |
+| **Octen Design Search** (`octen-design-search`) | `POST /design-search` | Real designs to build from — screenshots of live web pages, page sections, app screens and slides, each with the design values behind it (colours, fonts, sizes) and, for page sections, the HTML. A section or slide expands into its page or deck, up to 100 images a call. |
 | **Octen Video Search** (`octen-video-search`) | `POST /video-search` | Find web videos by a text query — returns ranked videos with the matched segment (timestamps), duration, cover, and source. **In Beta — [contact us](https://octen.ai) to request beta access.** |
 | **Octen Place Search** (`octen-place-search`) | `POST /place-search` | Real-world places as structured cards — address, coordinates, phone, opening hours, status, rating. Pass coordinates for distances, or a city when that is all you know. Web pages about the places are opt-in. |
 | **Octen Extract** (`octen-extract`) | `POST /extract` | Fetch 1–20 URLs and return clean markdown/text content plus a category, page-structure label, and optional query-driven highlights and page links. `mode` picks `standard` (default), `advanced` (hard sites: Reddit, X, LinkedIn, anti-bot/SPA), or `auto` (per URL). |
@@ -82,9 +83,11 @@ To target a specific agent, pass `-a`:
 fallback below extracts over what is there and deletes nothing, and an install
 tool may do the same. A withdrawn skill left behind keeps firing.
 
-`octen-design` has been withdrawn, pending a dedicated endpoint for design
-references. If you installed it, delete `<skills-dir>/octen-design` — otherwise
-it will go on triggering on frontend work and requesting a corpus that is no
+`octen-design` has been withdrawn. Its replacement is `octen-design-search`,
+which calls the dedicated `/design-search` endpoint and installs alongside the
+other skills — it is a different skill, not an update to the old one. If you
+installed `octen-design`, delete `<skills-dir>/octen-design` — otherwise it
+will go on triggering on frontend work and requesting a corpus that is no
 longer served.
 
 ### No Node? curl fallback
@@ -99,7 +102,7 @@ Common `<skills-dir>` values: `~/.claude/skills`, `~/.cursor/skills`, `~/.codex/
 
 ### Codex plugin (marketplace install)
 
-This repo also ships as a skills-only [Codex plugin](https://developers.openai.com/codex/plugins): `.codex-plugin/plugin.json` bundles all six skills, and `.agents/plugins/marketplace.json` exposes the repo as a plugin marketplace. (The skills call the Octen HTTP API directly via curl, so no MCP server is bundled; to use the optional `octen-mcp` server instead, point a client at the hosted endpoint `https://mcp.octen.ai/mcp` — nothing to install — or run it yourself; see [Connect octen-mcp](https://docs.octen.ai/integrations/octen-mcp-server).) Add the repo as a marketplace source in Codex, then install the **Octen** plugin from `codex plugins`. Set `OCTEN_API_KEY` in your environment before first use (see [Prerequisites](#prerequisites)); the video skill additionally requires invite-only beta access.
+This repo also ships as a skills-only [Codex plugin](https://developers.openai.com/codex/plugins): `.codex-plugin/plugin.json` bundles all seven skills, and `.agents/plugins/marketplace.json` exposes the repo as a plugin marketplace. (The skills call the Octen HTTP API directly via curl, so no MCP server is bundled; to use the optional `octen-mcp` server instead, point a client at the hosted endpoint `https://mcp.octen.ai/mcp` — nothing to install — or run it yourself; see [Connect octen-mcp](https://docs.octen.ai/integrations/octen-mcp-server).) Add the repo as a marketplace source in Codex, then install the **Octen** plugin from `codex plugins`. Set `OCTEN_API_KEY` in your environment before first use (see [Prerequisites](#prerequisites)); the video skill additionally requires invite-only beta access.
 
 ## Prerequisites
 

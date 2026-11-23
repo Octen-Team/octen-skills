@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Search"
+  short_description: "Real page, app screen and slide designs with their values"
+  default_prompt: "Find real design references for this and tell me the colours and fonts they use."
