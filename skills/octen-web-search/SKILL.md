@@ -57,7 +57,7 @@ or call the HTTP API directly with `curl` — the sibling skills **octen-search*
 | The user wants… | Tool | Key point |
 |--|--|--|
 | One fact, one entity, one document — a single focused lookup | `search` | Fast real-time search. Default choice. |
-| A `search` that came back thin or off-target — or a document already known to be hard to find: a niche report, a filing, a page buried deep in a site | `premier_search` | Takes what `search` takes (plus `result_type`), with deeper retrieval and reranking. Slower and billed separately: **try `search` first** for an ordinary lookup. |
+| A `search` that came back thin or off-target — or a document already known to be hard to find: a niche report, a filing, a page buried deep in a site | `premier_search` | Takes the same parameters as `search`, with deeper retrieval and reranking. Slower and billed separately: **try `search` first** for an ordinary lookup. |
 | Recent events / headlines — a single news lookup | `news_search` | Its own endpoint. Returns articles **and** `subjects`: the coverage grouped into storylines with summaries. |
 | A company or a person — what they do, who runs it, financials, recent announcements, or two compared | `business_search` | Returns structured cards, not pages to read. Far cheaper than `search` plus reading the results. |
 | Multiple distinct parts or entities one search can't cover: comparisons across many sources, surveys, "what are the options for X", a question that decomposes into 3+ sub-questions | `broad_search` | Fans out; **~Nx cost + latency** — see below. |
@@ -78,6 +78,10 @@ or call the HTTP API directly with `curl` — the sibling skills **octen-search*
 > documents Search Premier, and **octen-design-search** documents Design Search.
 > That path needs an `OCTEN_API_KEY`; without one, say the tool is unavailable
 > rather than substituting a different tool and presenting it as the same thing.
+>
+> `result_type` (`standard` or `dynamic`) on `search` and `broad_search` exists
+> from **octen-mcp 0.8.1**; the hosted endpoint has it. On an older server only
+> `premier_search` takes it.
 
 ### When to prefer `search` over `broad_search`
 
